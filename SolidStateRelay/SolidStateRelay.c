@@ -3,6 +3,8 @@
 #include <avr/pgmspace.h>
 #include "wiring.h"
 
+// ATTiny2313用
+
 // Fuse
 // Lo: E4
 // Hi: 9D
