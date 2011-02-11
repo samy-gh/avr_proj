@@ -1,6 +1,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/sleep.h>
 #include "wiring.h"
 
 // ATTiny2313用
@@ -37,7 +38,14 @@ void setup( void )
 
 	beginSerial( 38400 );
 
+	WDTCSR = 0x00;
+
 	sei();	// 割り込み許可
+
+	set_sleep_mode(SLEEP_MODE_IDLE);	// USARTはIDLEモードでしか使えない
+//	set_sleep_mode(SLEEP_MODE_STANDBY);
+//	set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+	sleep_enable();
 
 	g_on_idx = 0;
 	g_off_idx = 0;
@@ -51,11 +59,9 @@ void loop( void )
 	char c2;
 	PGM_P p_str;
 
-
-
-
 	while( 1 ) {
 		if( !serialAvailable() ) {
+			sleep_cpu();
 			continue;
 		}
 
@@ -133,7 +139,6 @@ void loop( void )
 				}
 				serialWrite( '\r' );
 				serialWrite( '\n' );
-				PORTD ^= (1<<PD5);		//PORTDの5番ピンが0になる
 			}
 		}
 		else {

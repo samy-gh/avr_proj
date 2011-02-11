@@ -39,8 +39,6 @@ unsigned char rx_buffer_tail = 0;
 
 void beginSerial(long baud)
 {
-//	UBRRH = (((F_CPU / 16) / baud - 1) >> 8);
-//	UBRRL = ((F_CPU / 16) / baud - 1);
 	UBRRH = ((F_CPU / 16 + baud / 2) / baud - 1) >> 8;
 	UBRRL = ((F_CPU / 16 + baud / 2) / baud - 1);
 	

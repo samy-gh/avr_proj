@@ -15,7 +15,7 @@ COMMON = -mmcu=$(MCU)
 
 ## Compile options common for all C compilation units.
 CFLAGS = $(COMMON)
-CFLAGS += -Wall -gdwarf-2 -std=gnu99                -DF_CPU=8450000UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+CFLAGS += -Wall -gdwarf-2 -std=gnu99                  -DF_CPU=8450000UL -Os -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 CFLAGS += -MD -MP -MT $(*F).o -MF dep/$(@F).d 
 
 ## Assembly specific flags
@@ -25,7 +25,7 @@ ASMFLAGS += -x assembler-with-cpp -Wa,-gdwarf2
 
 ## Linker flags
 LDFLAGS = $(COMMON)
-LDFLAGS +=  -Wl,-Map=SolidStateRelay.map
+LDFLAGS += 
 
 
 ## Intel Hex file production flags
@@ -43,7 +43,7 @@ OBJECTS = SolidStateRelay.o wiring_serial.o
 LINKONLYOBJECTS = 
 
 ## Build
-all: $(TARGET) SolidStateRelay.hex SolidStateRelay.eep SolidStateRelay.lss size
+all: $(TARGET) SolidStateRelay.hex SolidStateRelay.eep size
 
 ## Compile
 SolidStateRelay.o: ../SolidStateRelay.c
@@ -72,8 +72,7 @@ size: ${TARGET}
 ## Clean target
 .PHONY: clean
 clean:
-	-rm -rf $(OBJECTS) SolidStateRelay.elf dep/* SolidStateRelay.hex SolidStateRelay.eep SolidStateRelay.lss SolidStateRelay.map
-
+	-rm -rf $(OBJECTS) SolidStateRelay.elf dep/* SolidStateRelay.hex SolidStateRelay.eep
 
 ## Other dependencies
 -include $(shell mkdir dep 2>/dev/null) $(wildcard dep/*)
