@@ -36,7 +36,7 @@
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // 設定
 // Version
-#define D_VER_STR "Ver 1.01"
+#define D_VER_STR "Ver 1.02"
 
 // pin12
 #define D_PCINT0_PIN_ADDR		PINB
@@ -359,7 +359,9 @@ void loop( void )
 		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
 		// 発生してもsleep()しなくなる。
 		// sleep()するのは、sleep_enable()～sleep()までの間に割り込みが一度も発生しない場合のみとなる。
+		cli();
 		sleep_enable();
+		sei();
 
 		while( g_pcint_assert != g_pcint_processed ) {
 			g_pcint_processed = g_pcint_assert;
