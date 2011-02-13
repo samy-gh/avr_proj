@@ -25,6 +25,7 @@
 */
 
 #include "wiring_private.h"
+#include "avr/sleep.h"
 
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
@@ -103,4 +104,6 @@ SIGNAL(USART_RX_vect)
 		rx_buffer[rx_buffer_head] = c;
 		rx_buffer_head = i;
 	}
+
+	sleep_disable();
 }

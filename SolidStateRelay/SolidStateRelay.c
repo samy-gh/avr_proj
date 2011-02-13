@@ -36,7 +36,7 @@
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // 設定
 // Version
-#define D_VER_STR "Ver 1.00"
+#define D_VER_STR "Ver 1.01"
 
 // pin12
 #define D_PCINT0_PIN_ADDR		PINB
@@ -137,6 +137,7 @@ void print_digit( unsigned int val )
 SIGNAL(PCINT_vect)
 {
 	g_pcint_assert++;
+	sleep_disable();
 }
 
 
@@ -246,14 +247,12 @@ void serial_recv_event( void )
 	// ONコマンド判定
 	if( serial_cmd_judge( g_on_cmd, &g_on_idx, c ) != 0 ) {
 		g_ac_on_cmd_last = 1;
-		serialWrite( '\n' );
 	}
 
 
 	// OFFコマンド判定
 	if( serial_cmd_judge( g_off_cmd, &g_off_idx, c ) != 0 ) {
 		g_ac_on_cmd_last = 0;
-		serialWrite( '\n' );
 	}
 
 
@@ -287,6 +286,7 @@ void serial_recv_event( void )
 	if( (c == '\r')
 	 || (c == '\n')
 	 ) {
+		serialWrite( '\n' );
 		serial_cmd_setup();
 	}
 }
@@ -347,7 +347,6 @@ void setup( void )
 	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
 //	set_sleep_mode( SLEEP_MODE_STANDBY );
 //	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
-	sleep_enable();
 
 	sei();	// 割り込み許可
 }
@@ -356,6 +355,12 @@ void setup( void )
 void loop( void )
 {
 	while( 1 ) {
+		// すべての割り込みハンドラ内でsleep_disable()を実施している。
+		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
+		// 発生してもsleep()しなくなる。
+		// sleep()するのは、sleep_enable()～sleep()までの間に割り込みが一度も発生しない場合のみとなる。
+		sleep_enable();
+
 		while( g_pcint_assert != g_pcint_processed ) {
 			g_pcint_processed = g_pcint_assert;
 #ifdef D_DEBUG_PRINT
@@ -383,7 +388,9 @@ void loop( void )
 
 		ac_ctrl_port_drive();
 
+//		PGM_PUTS(( "sleep\n" ));
 		sleep_cpu();
+//		PGM_PUTS(( "wakeup\n" ));
 	}
 }
 
