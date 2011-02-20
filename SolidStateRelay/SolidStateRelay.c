@@ -329,7 +329,7 @@ void ac_ctrl_port_drive( void )
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 void setup( void )
 {
-	// 内蔵RC発信機を8MHzへ公正
+	// 内蔵RC発信機を8MHzへ校正
 #ifdef D_OSCCAL
 	OSCCAL = D_OSCCAL;
 #endif
