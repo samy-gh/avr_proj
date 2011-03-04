@@ -2,6 +2,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
+#include <avr/sleep.h>
 #include <util/delay.h>
 #include <stdio.h>
 
@@ -173,6 +174,13 @@ VOID setup( VOID )
 	// LCD初期化
 	Lcd_Init();
 
+	// パワーセーブ
+	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
+//	set_sleep_mode( SLEEP_MODE_STANDBY );
+//	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
+	PRR = (_BV(PRADC) | _BV(PRTIM0) | _BV(PRTIM1) | _BV(PRTIM2) | _BV(PRTWI) | _BV(PRSPI) );
+
+
 
 	/* Power ON delay (300ms) */
 	_delay_ms(300);
@@ -208,6 +216,14 @@ VOID main( VOID )
 
 	ULONG loopcnt = 0;
 	while( 1 ) {	/* main event loop */
+		// すべての割り込みハンドラ内でsleep_disable()を実施している。
+		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
+		// 発生してもsleep()しなくなる。
+		// sleep()するのは、sleep_enable()～sleep()までの間に割り込みが一度も発生しない場合のみとなる。
+		cli();
+		sleep_enable();
+		sei();
+
 		usbPoll();	/* 10msec以内(50msec以内？)にコール */
 		usart_poll();
 
@@ -215,6 +231,8 @@ VOID main( VOID )
 		Lcd_Goto( 0, 1 );
 		Mystdout_PrintDigit( loopcnt );
 		loopcnt++;
+
+		sleep_cpu();
 	}
 }
 

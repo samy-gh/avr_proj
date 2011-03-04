@@ -196,6 +196,14 @@ section at the end of this file).
  * Please note that Start Of Frame detection works only if D- is wired to the
  * interrupt, not D+. THIS IS DIFFERENT THAN MOST EXAMPLES!
  */
+#ifdef __ASSEMBLER__
+macro disable_sleepMacro
+	in YL, SMCR
+	cbr YL, 0
+	out SMCR, YL
+	endm
+#endif
+#define USB_SOF_HOOK                    disable_sleepMacro
 #define USB_CFG_CHECK_DATA_TOGGLING     0
 /* define this macro to 1 if you want to filter out duplicate data packets
  * sent by the host. Duplicates occur only as a consequence of communication

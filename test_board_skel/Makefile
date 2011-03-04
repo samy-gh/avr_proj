@@ -14,6 +14,10 @@ F_CPU = 16000000
 
 OSC=$(subst 0,,$(F_CPU))
 
+FUSE_LO=0xFF
+FUSE_HI=0xDA
+FUSE_EX=0xFF
+
 
 ##
 ## ソースコード設定
