@@ -1,0 +1,20 @@
+
+#include "usart.h"
+#include "my_typedef.h"
+#include "common.h"
+#include <avr/io.h>
+#include <stdio.h>
+
+static int usart_putchar( char c, struct __file* dummy )
+{
+	Usart_Write( c );
+	return 0;
+}
+
+static FILE g_usart_stdout = FDEV_SETUP_STREAM( usart_putchar, NULL, _FDEV_SETUP_WRITE );
+
+VOID Usart_Set_Stdout( VOID )
+{
+	stdout = &g_usart_stdout;
+}
+
