@@ -118,7 +118,7 @@ cleandepend:
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJS) *.stackdump *.exe *.elf *.hex *.eep $(TARGET)
+	rm -rf $(OBJS) *.stackdump *.exe *.elf *.hex *.eep *.map $(TARGET)
 
 
 %.d: %.c
