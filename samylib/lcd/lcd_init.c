@@ -9,7 +9,7 @@
 VOID Lcd_Init( VOID )
 {
 	Lcd_Open();
-	Lcd_Control( 1, 1, 0 );
+	Lcd_Control( 1, 0, 0 );
 	Lcd_Cls();
 }
 
