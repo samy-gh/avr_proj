@@ -9,6 +9,9 @@ typedef unsigned char  UCHAR;
 typedef long  LONG;
 typedef int   INT;
 typedef short SHORT;
+typedef float FLOAT;
+typedef double DOUBLE;
+typedef UCHAR  BYTE;
 
 #ifndef CHAR
 #define CHAR char
