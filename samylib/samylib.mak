@@ -46,4 +46,14 @@ CSRCS+=$(CUR_PATH)/lcd/lcd_test.c
 CSRCS+=$(CUR_PATH)/lcd/lcd_toggle_e.c
 CSRCS+=$(CUR_PATH)/lcd/lcd_write_data.c
 
+CSRCS+=$(CUR_PATH)/timer1/timer1_ovf_vect.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_compa_vect.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_init.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_enable_ovf_intr.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_enable_compa_intr.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_start.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_restart.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_stop.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_set_period.c
+
 
