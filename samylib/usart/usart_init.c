@@ -13,6 +13,8 @@ volatile T_USART_RING_BUF_TX gUsart_TxBuffer = { {0}, 0, 0 };
 
 VOID Usart_Init( const ULONG baud )
 {
+	cbi( PRR, PRUSART0 );		// Disable power save mode
+
 	D_UBRRH = ((F_CPU / 16 + baud / 2) / baud - 1) >> 8;
 	D_UBRRL = ((F_CPU / 16 + baud / 2) / baud - 1);
 

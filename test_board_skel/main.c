@@ -164,6 +164,12 @@ VOID setup( VOID )
 	// WDT停止
 	WDTCSR = 0x00;
 
+	// パワーセーブ
+	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
+//	set_sleep_mode( SLEEP_MODE_STANDBY );
+//	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
+	PRR = 0xFF;
+
 	// USB初期化
 	usbInit();
 	usbDeviceDisconnect();
@@ -173,12 +179,6 @@ VOID setup( VOID )
 
 	// LCD初期化
 	Lcd_Init();
-
-	// パワーセーブ
-	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
-//	set_sleep_mode( SLEEP_MODE_STANDBY );
-//	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
-	PRR = (_BV(PRADC) | _BV(PRTIM0) | _BV(PRTIM1) | _BV(PRTIM2) | _BV(PRTWI) | _BV(PRSPI) );
 
 
 
