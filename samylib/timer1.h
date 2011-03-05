@@ -12,9 +12,10 @@ extern VOID (*gTimer1_OvfCallbackFunc)( VOID );
 extern UCHAR gTimer1_ClockSelectBits;
 extern UINT gTimer1_PwmPeriod;
 
-extern VOID Timer1_Init( ULONG usec );
+extern VOID Timer1_Init( ULONG usec );	// Initialize and Disable Power-save
 extern VOID Timer1_Start( VOID );
 extern VOID Timer1_Stop( VOID );
+extern VOID Timer1_Close( VOID );		// Enable Power-save
 extern VOID Timer1_Restart( VOID );
 //extern VOID Timer1_Set_Pwm( UCHAR pin, UINT duty, LONG );
 //extern VOID Timer1_Unset_Pwm( UCHAR pin );

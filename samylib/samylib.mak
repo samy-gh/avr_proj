@@ -54,6 +54,7 @@ CSRCS+=$(CUR_PATH)/timer1/timer1_enable_compa_intr.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_start.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_restart.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_stop.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_close.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_set_period.c
 
 
