@@ -1,9 +1,17 @@
 
+// usart
 #include "usart.h"
+
+// samylib
 #include "my_typedef.h"
 #include "common.h"
+
+// WinAVR
 #include <avr/io.h>
+
+// STD-C
 #include <stdio.h>
+
 
 static int usart_putchar( char c, struct __file* dummy )
 {

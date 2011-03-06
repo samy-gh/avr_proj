@@ -1,7 +1,13 @@
 
+// usart
 #include "usart.h"
+
+// samylib
 #include "my_typedef.h"
+
+// WinAVR
 #include <avr/io.h>
+
 
 UCHAR Usart_Available( VOID )
 {

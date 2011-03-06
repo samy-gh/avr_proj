@@ -1,7 +1,13 @@
 
+// mystdout
 #include "mystdout.h"
+
+// samylib
 #include "my_typedef.h"
+
+// STD-C
 #include <stdio.h>
+
 
 VOID Mystdout_PgmPuts( PGM_P p_str )
 {

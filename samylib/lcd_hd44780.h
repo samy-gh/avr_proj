@@ -5,7 +5,10 @@
 #ifndef __LCD_HD44780_H__
 #define __LCD_HD44780_H__
 
+// samylib
 #include "my_typedef.h"
+
+// WinAVR
 #include <avr/pgmspace.h>
 
 

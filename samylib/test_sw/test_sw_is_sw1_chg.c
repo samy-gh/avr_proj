@@ -1,6 +1,11 @@
 
+// test_sw
 #include "test_sw.h"
-#include "common.h"
+
+// samylib
+#include "my_typedef.h"
+
+// WinAVR
 #include <avr/io.h>
 
 

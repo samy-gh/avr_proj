@@ -2,11 +2,16 @@
  * HD44780 LCD driver
  */
 
+// lcd
 #include "lcd_hd44780.h"
 #include "lcd_hd44780_custom.h"
-#include <util/delay.h>
+
+// samylib
 #include "my_typedef.h"
 #include "common.h"
+
+// WinAVR
+#include <util/delay.h>
 
 
 VOID Lcd_Open( VOID )

@@ -2,12 +2,14 @@
  * HD44780 LCD driver
  */
 
+// lcd
 #include "lcd_hd44780.h"
 #include "lcd_hd44780_custom.h"
+
+// samylib
 #include "my_typedef.h"
 #include "common.h"
 
-#include "usart.h"
 
 VOID _Lcd_Write_Data( UCHAR data_4bit )
 {
@@ -42,5 +44,4 @@ VOID _Lcd_Write_Data( UCHAR data_4bit )
 		cbi( REG_PORT(D_LCD_D7_PORT_NAME), BIT_PORT(D_LCD_D7_PORT_NAME, D_LCD_D7_BIT) );
 	}
 }
-
 

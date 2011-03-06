@@ -1,9 +1,11 @@
-/*
- * HD44780 LCD driver
- */
 
+// mystdout
 #include "mystdout.h"
+
+// samylib
 #include "my_typedef.h"
+
+// STD-C
 #include <stdio.h>
 
 

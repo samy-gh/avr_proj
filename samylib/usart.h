@@ -2,8 +2,13 @@
 #ifndef __USART_H__
 #define __USART_H__
 
+// usart
 #include "usart_custom.h"
+
+// samylib
 #include "my_typedef.h"
+
+// WinAVR
 #include <avr/pgmspace.h>
 
 

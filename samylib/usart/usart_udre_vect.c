@@ -1,10 +1,16 @@
 
+// usart
 #include "usart.h"
+
+// samylib
 #include "my_typedef.h"
 #include "common.h"
+
+// WinAVR
 #include <avr/io.h>
-#include "avr/sleep.h"
+#include <avr/sleep.h>
 #include <avr/interrupt.h>
+
 
 #ifdef CO_USART_TX_INTERRUPT
 

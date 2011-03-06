@@ -1,7 +1,14 @@
 
+// timer1
 #include "timer1.h"
+
+// samylib
+#include "my_typedef.h"
+
+// WinAVR
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
+
 
 VOID (*gTimer1_OvfCallbackFunc)( VOID ) = 0;
 

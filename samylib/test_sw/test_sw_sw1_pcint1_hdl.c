@@ -1,7 +1,13 @@
 
+// test_sw
 #include "test_sw.h"
-#include "common.h"
+
+// samylib
+#include "my_typedef.h"
+
+// WinAVR
 #include <avr/io.h>
+
 
 UCHAR gTest_Sw1_Stat;
 E_TEST_SW_EVENT gTest_Sw1_Event = E_TEST_SW_EVENT_NONE;

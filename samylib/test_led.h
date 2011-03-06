@@ -2,8 +2,12 @@
 #ifndef __TEST_LED_H__
 #define __TEST_LED_H__
 
+// samylib
 #include "common.h"
+
+// WinAVR
 #include <avr/io.h>
+
 
 // LED1: PB5 (SCK)
 // LED2: PB4 (MISO)

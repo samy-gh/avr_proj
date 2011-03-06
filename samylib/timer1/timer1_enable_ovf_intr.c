@@ -1,6 +1,13 @@
 
+// timer1
 #include "timer1.h"
+
+// samylib
+#include "my_typedef.h"
+
+// WinAVR
 #include <avr/io.h>
+
 
 VOID Timer1_Enable_OvfIntr( VOID (*isr)( VOID ) )
 {

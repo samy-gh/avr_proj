@@ -1,8 +1,14 @@
 
+// usart
 #include "usart.h"
+
+// samylib
 #include "my_typedef.h"
 #include "common.h"
+
+// WinAVR
 #include <avr/io.h>
+
 
 #ifdef CO_USART_TX_INTERRUPT
 inline static VOID usart_store_char_tx( const UCHAR c )

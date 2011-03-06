@@ -2,7 +2,9 @@
 #ifndef __USART_CUSTOM_H__
 #define __USART_CUSTOM_H__
 
+// WinAVR
 #include <avr/io.h>
+
 
 //
 // 受信バッファサイズ

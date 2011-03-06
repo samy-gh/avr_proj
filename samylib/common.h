@@ -2,7 +2,9 @@
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+// WinAVR
 #include <avr/io.h>
+
 
 #ifndef cbi
 #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))

@@ -1,18 +1,25 @@
 
+// プロジェクト固有
+
+// usbdrv
+#include <usbdrv/usbdrv.h>
+
+// samylib
+#include <mystdout.h>
+#include <usart.h>
+#include <lcd_hd44780.h>
+#include <test_led.h>
+#include <test_sw.h>
+
+// WinAVR
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
 #include <util/delay.h>
+
+// STD-C
 #include <stdio.h>
-
-#include "mystdout.h"
-#include "usart.h"
-#include "lcd_hd44780.h"
-#include "test_led.h"
-#include "test_sw.h"
-
-#include "usbdrv/usbdrv.h"
 
 
 // メインループの動作を見る

@@ -1,9 +1,15 @@
 
+// usart
 #include "usart.h"
+
+// samylib
 #include "my_typedef.h"
 #include "common.h"
+
+// WinAVR
 #include <avr/io.h>
 #include <util/delay.h>
+
 
 BOOL Usart_Wait_WriteComplete( VOID )
 {

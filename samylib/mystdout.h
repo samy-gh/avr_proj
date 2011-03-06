@@ -2,8 +2,12 @@
 #ifndef __MY_STDOUT_H__
 #define __MY_STDOUT_H__
 
+// samylib
 #include "my_typedef.h"
+
+// WinAVR
 #include <avr/pgmspace.h>
+
 
 VOID Mystdout_PrintDigitN( UINT val, UINT print_lvl );
 VOID Mystdout_PrintDigit( UINT val );

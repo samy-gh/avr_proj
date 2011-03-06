@@ -2,7 +2,9 @@
 #ifndef __TIMER1_H__
 #define __TIMER1_H__
 
+// samylib
 #include "my_typedef.h"
+
 
 #define D_TIMER1_RESOLUTION 65536    // Timer1 is 16 bit
 

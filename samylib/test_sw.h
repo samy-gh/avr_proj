@@ -2,9 +2,13 @@
 #ifndef __TEST_SW_H__
 #define __TEST_SW_H__
 
+// samylib
 #include "my_typedef.h"
 #include "common.h"
+
+// WinAVR
 #include <avr/io.h>
+
 
 // SW1: PC2 (PCINT10)
 // SW2: PC3 (PCINT11)
