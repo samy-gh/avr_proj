@@ -782,7 +782,9 @@ VOID setup( VOID )
 //	set_sleep_mode( SLEEP_MODE_STANDBY );
 //	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
 #endif
+#ifdef power_all_disable
 	power_all_disable();
+#endif
 
 
 
