@@ -3,6 +3,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include <avr/sleep.h>
+#include <avr/power.h>
 #include <util/delay.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,6 +22,12 @@
 
 // PC3ピンでIR受信状況をモニタする
 //#define CO_PCINT_MONITOR_PC3
+
+// スリープ(省電力)モードON
+#define CO_SLEEP_ENABLE
+
+// クロック間引き(省電力)モードON
+//#define CO_CLOCK_REDUCE_MODE
 
 // IR波形計測用タイマの最大時間
 #define D_TIMER1_PERIOD_USEC 10000UL
@@ -121,17 +128,17 @@ VOID ir_frame_dump( VOID )
 // ステータスコード
 //
 typedef enum {
-	E_IR_RECV_STAT_IDLE = 0,
+	E_IR_RECV_STAT_IDLE = 0,				// 0
 	E_IR_RECV_STAT_LEADER1_WAIT,
 	E_IR_RECV_STAT_LEADER1_MEASURE,
 	E_IR_RECV_STAT_LEADER0_NEC_MEASURE,
 	E_IR_RECV_STAT_LEADER0_AEHA_MEASURE,
-	E_IR_RECV_STAT_SONY_FRAME_WAIT,
+	E_IR_RECV_STAT_SONY_FRAME_WAIT,			// 5
 	E_IR_RECV_STAT_SONY_FRAME_MEASURE,
 	E_IR_RECV_STAT_NEC_FRAME_WAIT,
 	E_IR_RECV_STAT_NEC_FRAME_MEASURE,
 	E_IR_RECV_STAT_AEHA_FRAME_WAIT,
-	E_IR_RECV_STAT_AEHA_FRAME_MEASURE,
+	E_IR_RECV_STAT_AEHA_FRAME_MEASURE,		// 10
 	E_IR_RECV_STAT_END,
 	E_IR_RECV_STAT_ERR,
 	E_IR_RECV_STAT_MAX
@@ -144,27 +151,27 @@ E_IR_RECV_STAT volatile g_ir_recv_stat = E_IR_RECV_STAT_IDLE;
 // エラーコード
 //
 typedef enum {
-	E_IR_RECV_ERR_NONE = 0,
+	E_IR_RECV_ERR_NONE = 0,						// 0
 	E_IR_RECV_ERR_LEADER1_WAIT,
 	E_IR_RECV_ERR_LEADER1_MEASURE,
 	E_IR_RECV_ERR_LEADER1_MEASURE_TO,
 	E_IR_RECV_ERR_LEADER0_NEC_MEASURE,
-	E_IR_RECV_ERR_LEADER0_NEC_MEASURE_TO,
+	E_IR_RECV_ERR_LEADER0_NEC_MEASURE_TO,		// 5
 	E_IR_RECV_ERR_LEADER0_AEHA_MEASURE,
 	E_IR_RECV_ERR_LEADER0_AEHA_MEASURE_TO,
 	E_IR_RECV_ERR_UNKNOWN_LEADER,
 	E_IR_RECV_ERR_FRAME_DATA_1_NULL,
-	E_IR_RECV_ERR_FRAME_DATA_1_UNKNOWN_LENGTH,
+	E_IR_RECV_ERR_FRAME_DATA_1_UNKNOWN_LENGTH,	// 10
 	E_IR_RECV_ERR_FRAME_DATA_0_NULL,
 	E_IR_RECV_ERR_FRAME_DATA_0_UNKNOWN_LENGTH,
 	E_IR_RECV_ERR_BUF_OVERFLOW,
 	E_IR_RECV_ERR_ILLEGAL_STAT,
-	E_IR_RECV_ERR_UNKNOWN_TO,
+	E_IR_RECV_ERR_UNKNOWN_TO,					// 15
 	E_IR_RECV_ERR_SONY_FRAME,
 	E_IR_RECV_ERR_SONY_FRAME_MEASURE_TO,
 	E_IR_RECV_ERR_NEC_FRAME_WAIT_TO,
 	E_IR_RECV_ERR_AEHA_FRAME_WAIT_TO,
-	E_IR_RECV_ERR_MAX
+	E_IR_RECV_ERR_MAX							// 20
 } E_IR_RECV_ERR;
 
 E_IR_RECV_ERR volatile g_ir_recv_err = E_IR_RECV_ERR_NONE;
@@ -408,7 +415,7 @@ VOID ir_recv__event_nec_frame_data_0( VOID )
 		return;
 	}
 
-	if( (462 < usec) && (usec < 662) ) {	// 562 usec
+	if( (362 < usec) && (usec < 762) ) {	// 562 usec
 		// NECフォーマットのフレーム開始
 		g_ir_recv_stat = E_IR_RECV_STAT_NEC_FRAME_MEASURE;
 	}
@@ -565,7 +572,9 @@ VOID timer1_compa_hdl( VOID )
 			break;
 	}
 
+#ifdef CO_SLEEP_ENABLE
 	sleep_disable();
+#endif
 }
 
 UCHAR volatile g_ir_recv_pin_last = 0;
@@ -711,7 +720,9 @@ SIGNAL(PCINT1_vect)
 	Test_Sw_Sw1Pcint1Hdl();
 	Test_Sw_Sw2Pcint1Hdl();
 
+#ifdef CO_SLEEP_ENABLE
 	sleep_disable();
+#endif
 }
 
 
@@ -744,7 +755,20 @@ VOID print_banner( VOID )
 	printf_P( line_feed_str );
 	Lcd_Set_Stdout();
 	printf_P( hello_str );
+
+#ifdef CO_CLOCK_REDUCE_MODE
+	Usart_Wait_WriteComplete();
+#endif
 }
+
+#ifdef CO_CLOCK_REDUCE_MODE
+#define CLK_DIV256()	clock_prescale_set( 8 )
+
+#define CLK_DIV1()		clock_prescale_set( 0 )
+#else
+#define CLK_DIV256()
+#define CLK_DIV1()
+#endif
 
 VOID setup( VOID )
 {
@@ -753,10 +777,13 @@ VOID setup( VOID )
 
 
 	// パワーセーブ
+#ifdef CO_SLEEP_ENABLE
 	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
 //	set_sleep_mode( SLEEP_MODE_STANDBY );
 //	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
-	PRR = 0xFF;
+#endif
+	power_all_disable();
+
 
 
 #ifdef CO_PCINT_MONITOR_PC3
@@ -805,7 +832,10 @@ VOID main( VOID )
 #endif
 
 
+	CLK_DIV256();
+
 	while( 1 ) {	/* main event loop */
+#ifdef CO_SLEEP_ENABLE
 		// すべての割り込みハンドラ内でsleep_disable()を実施している。
 		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
 		// 発生してもsleep()しなくなる。
@@ -813,10 +843,12 @@ VOID main( VOID )
 		cli();
 		sleep_enable();
 		sei();
+#endif
 
 
 		// シリアル受信イベント
 		usart_recv_c = usart_poll();
+#if 0
 		if( usart_recv_c > 0 ) {
 			switch( g_ir_recv_stat ) {
 				default:
@@ -824,12 +856,12 @@ VOID main( VOID )
 					break;
 				case E_IR_RECV_STAT_IDLE:
 					Usart_Set_Stdout();
-					printf_P( PSTR("recv begin\n") );
-					putchar( '\n' );
+					printf_P( PSTR("\nrecv begin\n") );
 					ir_recv_start();
 					break;
 			}
 		}
+#endif
 
 		if( Test_Sw_Is_Sw1Chg() == E_TEST_SW_EVENT_ON ) {
 			switch( g_ir_recv_stat ) {
@@ -837,9 +869,9 @@ VOID main( VOID )
 					ir_event_history_dump();
 					break;
 				case E_IR_RECV_STAT_IDLE:
+					CLK_DIV1();
 					Usart_Set_Stdout();
-					printf_P( PSTR("recv begin\n") );
-					putchar( '\n' );
+					printf_P( PSTR("\nrecv begin\n") );
 					ir_recv_start();
 					break;
 			}
@@ -853,20 +885,29 @@ VOID main( VOID )
 			case E_IR_RECV_STAT_END:
 				ir_recv_stop();
 				Usart_Set_Stdout();
-				printf_P( PSTR("recv success\n") );
+				printf_P( PSTR("\nrecv success\n") );
 				ir_frame_dump();
 				g_ir_recv_stat = E_IR_RECV_STAT_IDLE;
 				ir_event_history_dump();
 
+#ifdef CO_CLOCK_REDUCE_MODE
+				Usart_Wait_WriteComplete();
+#endif
+				CLK_DIV256();
 				break;
 			case E_IR_RECV_STAT_ERR:
 				ir_recv_stop();
 				Usart_Set_Stdout();
-				printf_P( PSTR("recv error code=%u usec=%u\n"), g_ir_recv_err, g_ir_timer_usec_last );
+				printf_P( PSTR("\nrecv error code=%u usec=%u\n"), g_ir_recv_err, g_ir_timer_usec_last );
 				ir_event_history_dump();
 				ir_frame_dump();
 				g_ir_recv_stat = E_IR_RECV_STAT_IDLE;
 				g_ir_recv_err = E_IR_RECV_ERR_NONE;
+
+#ifdef CO_CLOCK_REDUCE_MODE
+				Usart_Wait_WriteComplete();
+#endif
+				CLK_DIV256();
 				break;
 		}
 
@@ -879,7 +920,9 @@ VOID main( VOID )
 		loopcnt++;
 #endif
 
+#ifdef CO_SLEEP_ENABLE
 		sleep_cpu();
+#endif
 	}
 }
 
