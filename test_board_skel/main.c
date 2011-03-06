@@ -9,6 +9,8 @@
 #include "mystdout.h"
 #include "usart.h"
 #include "lcd_hd44780.h"
+#include "test_led.h"
+#include "test_sw.h"
 
 #include "usbdrv/usbdrv.h"
 
@@ -159,6 +161,16 @@ VOID usart_poll( VOID )
 }
 
 
+// Pin Change Interrupt処理
+SIGNAL(PCINT1_vect)
+{
+	Test_Sw_Sw1Pcint1Hdl();
+	Test_Sw_Sw2Pcint1Hdl();
+
+	sleep_disable();
+}
+
+
 VOID setup( VOID )
 {
 	// WDT停止
@@ -180,6 +192,14 @@ VOID setup( VOID )
 	// LCD初期化
 	Lcd_Init();
 
+
+	TEST_SW1_ENABLE();
+	TEST_SW2_ENABLE();
+
+
+	TEST_LED1_ON();
+	TEST_LED2_OFF();
+	TEST_LED3_OFF();
 
 
 	/* Power ON delay (300ms) */
@@ -231,6 +251,37 @@ VOID main( VOID )
 		Lcd_Goto( 0, 1 );
 		Mystdout_PrintDigit( loopcnt );
 		loopcnt++;
+
+		switch( Test_Sw_Is_Sw1Chg() ) {
+			case E_TEST_SW_EVENT_ON:
+				Usart_Set_Stdout();
+				puts_P( PSTR("SW1 on") );
+				TEST_LED2_ON();
+				break;
+			case E_TEST_SW_EVENT_OFF:
+				Usart_Set_Stdout();
+				puts_P( PSTR("SW1 off") );
+				TEST_LED2_OFF();
+				break;
+			default:
+				break;
+		}
+
+		switch( Test_Sw_Is_Sw2Chg() ) {
+			case E_TEST_SW_EVENT_ON:
+				Usart_Set_Stdout();
+				puts_P( PSTR("SW2 on") );
+				TEST_LED3_ON();
+				break;
+			case E_TEST_SW_EVENT_OFF:
+				Usart_Set_Stdout();
+				puts_P( PSTR("SW2 off") );
+				TEST_LED3_OFF();
+				break;
+			default:
+				break;
+		}
+
 
 		sleep_cpu();
 	}

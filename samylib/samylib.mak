@@ -57,4 +57,8 @@ CSRCS+=$(CUR_PATH)/timer1/timer1_stop.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_close.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_set_period.c
 
+CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw1_chg.c
+CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw2_chg.c
+CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw1_pcint1_hdl.c
+CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw2_pcint1_hdl.c
 
