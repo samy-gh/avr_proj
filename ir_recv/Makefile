@@ -23,7 +23,7 @@ FUSE_EX=0xFF
 ## ソースコード設定
 ##
 TARGET=main-$(OSC).hex
-CSRCS+=main.c
+CSRCS+=main.c ir_recv.c ir_frame.c
 
 
 ##
