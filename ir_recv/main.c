@@ -12,6 +12,8 @@
 #include "usart.h"
 #include "lcd_hd44780.h"
 #include "timer1.h"
+#include "test_led.h"
+#include "test_sw.h"
 
 
 // メインループの動作を見る
@@ -571,76 +573,82 @@ UCHAR volatile g_ir_recv_pin_last = 0;
 // PCINT8割り込み
 VOID pcint8_hdl( VOID )
 {
-	UCHAR ir_recv_pin = D_IR_RECV_PIN;
+	if( (PCMSK1 & _BV(PCINT8)) == 0 ) {
+		return;
+	}
 
+	const UCHAR ir_recv_pin = D_IR_RECV_PIN;
 
-	if( ir_recv_pin != g_ir_recv_pin_last ) {
-		g_timer_count = TCNT1;
-		Timer1_Restart();
+	if( ir_recv_pin == g_ir_recv_pin_last ) {
+		return;
+	}
+	g_ir_recv_pin_last = ir_recv_pin;
+	// PCINT8発生
+
+	g_timer_count = TCNT1;
+	Timer1_Restart();
 
 		// PCINT8 event
 #ifdef CO_PCINT_MONITOR_PC3
-		PORTC ^= _BV(PC3);
+	PORTC ^= _BV(PC3);
 #endif
-		g_ir_recv_pin_last = ir_recv_pin;
-		// IRは負論理
-		if( ir_recv_pin == 0 ) {
-			// 0->1 (Hi->Lo)
-			ir_event_history_store( E_IR_RECV_EVENT_CHG_1 );
-			switch( g_ir_recv_stat ) {
-				default:
-					g_ir_recv_stat = E_IR_RECV_STAT_ERR;
-					g_ir_recv_err = E_IR_RECV_ERR_ILLEGAL_STAT;
-					break;
-				case E_IR_RECV_STAT_LEADER1_WAIT:
-					ir_recv__event_leader_1();
-					break;
-				case E_IR_RECV_STAT_LEADER0_NEC_MEASURE:
-					ir_recv__event_leader_0_nec();
-					break;
-				case E_IR_RECV_STAT_LEADER0_AEHA_MEASURE:
-					ir_recv__event_leader_0_aeha();
-					break;
-				case E_IR_RECV_STAT_SONY_FRAME_WAIT:
-					ir_recv__event_sony_frame_data_1();
-					break;
-				case E_IR_RECV_STAT_NEC_FRAME_MEASURE:
-					ir_recv__event_nec_frame_data_1();
-					break;
-				case E_IR_RECV_STAT_AEHA_FRAME_MEASURE:
-					ir_recv__event_aeha_frame_data_1();
-					break;
-				case E_IR_RECV_STAT_IDLE:	// fall through
-				case E_IR_RECV_STAT_END:	// fall through
-				case E_IR_RECV_STAT_ERR:
-					break;
-			}
+	// IRは負論理
+	if( ir_recv_pin == 0 ) {
+		// 0->1 (Hi->Lo)
+		ir_event_history_store( E_IR_RECV_EVENT_CHG_1 );
+		switch( g_ir_recv_stat ) {
+			default:
+				g_ir_recv_stat = E_IR_RECV_STAT_ERR;
+				g_ir_recv_err = E_IR_RECV_ERR_ILLEGAL_STAT;
+				break;
+			case E_IR_RECV_STAT_LEADER1_WAIT:
+				ir_recv__event_leader_1();
+				break;
+			case E_IR_RECV_STAT_LEADER0_NEC_MEASURE:
+				ir_recv__event_leader_0_nec();
+				break;
+			case E_IR_RECV_STAT_LEADER0_AEHA_MEASURE:
+				ir_recv__event_leader_0_aeha();
+				break;
+			case E_IR_RECV_STAT_SONY_FRAME_WAIT:
+				ir_recv__event_sony_frame_data_1();
+				break;
+			case E_IR_RECV_STAT_NEC_FRAME_MEASURE:
+				ir_recv__event_nec_frame_data_1();
+				break;
+			case E_IR_RECV_STAT_AEHA_FRAME_MEASURE:
+				ir_recv__event_aeha_frame_data_1();
+				break;
+			case E_IR_RECV_STAT_IDLE:	// fall through
+			case E_IR_RECV_STAT_END:	// fall through
+			case E_IR_RECV_STAT_ERR:
+				break;
 		}
-		else {
-			// 1->0 (Lo->Hi)
-			ir_event_history_store( E_IR_RECV_EVENT_CHG_0 );
-			switch( g_ir_recv_stat ) {
-				default:
-					g_ir_recv_stat = E_IR_RECV_STAT_ERR;
-					g_ir_recv_err = E_IR_RECV_ERR_ILLEGAL_STAT;
-					break;
-				case E_IR_RECV_STAT_LEADER1_MEASURE:
-					ir_recv__event_leader_0();
-					break;
-				case E_IR_RECV_STAT_SONY_FRAME_MEASURE:
-					ir_recv__event_sony_frame_data_0();
-					break;
-				case E_IR_RECV_STAT_NEC_FRAME_WAIT:
-					ir_recv__event_nec_frame_data_0();
-					break;
-				case E_IR_RECV_STAT_AEHA_FRAME_WAIT:
-					ir_recv__event_aeha_frame_data_0();
-					break;
-				case E_IR_RECV_STAT_IDLE:	// fall through
-				case E_IR_RECV_STAT_END:	// fall through
-				case E_IR_RECV_STAT_ERR:
-					break;
-			}
+	}
+	else {
+		// 1->0 (Lo->Hi)
+		ir_event_history_store( E_IR_RECV_EVENT_CHG_0 );
+		switch( g_ir_recv_stat ) {
+			default:
+				g_ir_recv_stat = E_IR_RECV_STAT_ERR;
+				g_ir_recv_err = E_IR_RECV_ERR_ILLEGAL_STAT;
+				break;
+			case E_IR_RECV_STAT_LEADER1_MEASURE:
+				ir_recv__event_leader_0();
+				break;
+			case E_IR_RECV_STAT_SONY_FRAME_MEASURE:
+				ir_recv__event_sony_frame_data_0();
+				break;
+			case E_IR_RECV_STAT_NEC_FRAME_WAIT:
+				ir_recv__event_nec_frame_data_0();
+				break;
+			case E_IR_RECV_STAT_AEHA_FRAME_WAIT:
+				ir_recv__event_aeha_frame_data_0();
+				break;
+			case E_IR_RECV_STAT_IDLE:	// fall through
+			case E_IR_RECV_STAT_END:	// fall through
+			case E_IR_RECV_STAT_ERR:
+				break;
 		}
 	}
 }
@@ -650,6 +658,8 @@ VOID pcint8_hdl( VOID )
 // タスクAPI
 VOID ir_recv_stop( VOID )
 {
+	TEST_LED2_OFF();
+
 	// PortC0(PCINT8) disable
 	cbi( PCMSK1, PCINT8 );
 	Timer1_Stop();
@@ -657,6 +667,8 @@ VOID ir_recv_stop( VOID )
 
 VOID ir_recv_start( VOID )
 {
+	TEST_LED2_ON();
+
 	Timer1_Stop();
 
 	Timer1_Close();	
@@ -695,6 +707,9 @@ VOID ir_recv_start( VOID )
 SIGNAL(PCINT1_vect)
 {
 	pcint8_hdl();
+
+	Test_Sw_Sw1Pcint1Hdl();
+	Test_Sw_Sw2Pcint1Hdl();
 
 	sleep_disable();
 }
@@ -750,6 +765,13 @@ VOID setup( VOID )
 #endif
 
 
+	TEST_SW1_ENABLE();
+	TEST_SW2_ENABLE();
+
+
+	TEST_LED1_ON();
+
+
 	// PCINTn Enable
 	sbi( PCICR, PCIE1 );
 
@@ -796,6 +818,20 @@ VOID main( VOID )
 		// シリアル受信イベント
 		usart_recv_c = usart_poll();
 		if( usart_recv_c > 0 ) {
+			switch( g_ir_recv_stat ) {
+				default:
+					ir_event_history_dump();
+					break;
+				case E_IR_RECV_STAT_IDLE:
+					Usart_Set_Stdout();
+					printf_P( PSTR("recv begin\n") );
+					putchar( '\n' );
+					ir_recv_start();
+					break;
+			}
+		}
+
+		if( Test_Sw_Is_Sw1Chg() == E_TEST_SW_EVENT_ON ) {
 			switch( g_ir_recv_stat ) {
 				default:
 					ir_event_history_dump();
