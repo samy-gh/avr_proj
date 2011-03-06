@@ -15,6 +15,7 @@
 #define  USART_PGM_PUTS( str )	Usart_PgmPuts( PSTR str );
 
 extern VOID Usart_Init( const ULONG baud );
+extern VOID Usart_Close( VOID );
 extern VOID Usart_Set_Stdout( VOID );
 extern VOID Usart_Write( const UCHAR c );
 extern UCHAR Usart_Available( VOID );

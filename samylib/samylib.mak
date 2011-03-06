@@ -12,6 +12,7 @@ CSRCS+=$(CUR_PATH)/mystdout/mystdout_putc.c
 
 CSRCS+=$(CUR_PATH)/usart/usart_rx_vect.c
 CSRCS+=$(CUR_PATH)/usart/usart_init.c
+CSRCS+=$(CUR_PATH)/usart/usart_close.c
 CSRCS+=$(CUR_PATH)/usart/usart_write.c
 CSRCS+=$(CUR_PATH)/usart/usart_read.c
 CSRCS+=$(CUR_PATH)/usart/usart_available.c
