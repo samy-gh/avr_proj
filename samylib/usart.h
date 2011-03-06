@@ -13,6 +13,7 @@ extern VOID Usart_Init( const ULONG baud );
 extern VOID Usart_Set_Stdout( VOID );
 extern VOID Usart_Write( const UCHAR c );
 extern UCHAR Usart_Available( VOID );
+extern BOOL Usart_Wait_WriteComplete( VOID );
 extern INT Usart_Read( VOID );
 extern VOID Usart_Flush( VOID );
 extern VOID Usart_PgmPuts( PGM_P p_str );
@@ -21,6 +22,7 @@ extern VOID Usart_PrintDigit( UINT val );
 extern VOID Usart_PrintDigitN( UINT val, UINT print_lvl );
 extern VOID Usart_PrintHex( UINT val );
 extern VOID Usart_PrintHexN( UINT val, UINT print_lvl );
+
 
 
 

@@ -15,6 +15,7 @@ CSRCS+=$(CUR_PATH)/usart/usart_init.c
 CSRCS+=$(CUR_PATH)/usart/usart_write.c
 CSRCS+=$(CUR_PATH)/usart/usart_read.c
 CSRCS+=$(CUR_PATH)/usart/usart_available.c
+CSRCS+=$(CUR_PATH)/usart/usart_wait_write_complete.c
 CSRCS+=$(CUR_PATH)/usart/usart_flush.c
 CSRCS+=$(CUR_PATH)/usart/usart_udre_vect.c
 CSRCS+=$(CUR_PATH)/usart/usart_set_stdout.c

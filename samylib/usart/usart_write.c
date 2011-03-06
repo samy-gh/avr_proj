@@ -33,7 +33,7 @@ VOID Usart_Write( const UCHAR c )
 #else //!CO_USART_TX_INTERRUPT
 VOID Usart_Write( const UCHAR c )
 {
-	while( !( D_UCSRA & (1 << D_UDRE) ) ) {
+	if( (D_UCSRA & _BV(D_UDRE)) ) {
 		;
 	}
 
