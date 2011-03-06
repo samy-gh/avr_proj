@@ -2,6 +2,11 @@
 #ifndef __CUSTOM_H__
 #define __CUSTOM_H__
 
+// LCD制御
+#define CO_LCD_CTRL
+
+// LED制御
+#define CO_LED_CTRL
 
 // メインループの動作を見る
 //#define CO_MAINLOOP_MONITOR
@@ -14,12 +19,12 @@
 
 // クロック間引き(省電力)モードON
 //#define CO_CLOCK_REDUCE_MODE
-//
+
 #ifdef CO_CLOCK_REDUCE_MODE
-#define CLK_DIV256()	clock_prescale_set( 8 )
+#define CLK_DIVN()		clock_prescale_set( 6 )
 #define CLK_DIV1()		clock_prescale_set( 0 )
 #else
-#define CLK_DIV256()
+#define CLK_DIVN()
 #define CLK_DIV1()
 #endif
 

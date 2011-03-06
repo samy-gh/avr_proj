@@ -512,7 +512,9 @@ VOID Ir_Recv_Pcint8Hdl( VOID )
 // タスクAPI
 VOID Ir_Recv_Stop( VOID )
 {
+#ifdef CO_LED_CTRL
 	TEST_LED2_OFF();
+#endif
 
 	// PortC0(PCINT8) disable
 	cbi( PCMSK1, PCINT8 );
@@ -521,7 +523,9 @@ VOID Ir_Recv_Stop( VOID )
 
 VOID Ir_Recv_Start( VOID )
 {
+#ifdef CO_LED_CTRL
 	TEST_LED2_ON();
+#endif
 
 	Timer1_Stop();
 
@@ -551,5 +555,4 @@ VOID Ir_Recv_Start( VOID )
 
 	gIr_Recv_Stat = E_IR_RECV_STAT_LEADER1_WAIT;
 }
-
 

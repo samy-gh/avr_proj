@@ -69,10 +69,12 @@ VOID print_banner( VOID )
 	printf_P( line_feed_str );
 	printf_P( hello_str );
 	printf_P( line_feed_str );
+#ifdef CO_LCD_CTRL
 	Lcd_Set_Stdout();
 	printf_P( hello_str );
+#endif
 
-#ifdef CO_CLOCK_REDUCE_MODE
+#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
 	Usart_Wait_WriteComplete();
 #endif
 }
@@ -85,9 +87,9 @@ VOID setup( VOID )
 
 	// パワーセーブ
 #ifdef CO_SLEEP_ENABLE
-	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
+//	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
 //	set_sleep_mode( SLEEP_MODE_STANDBY );
-//	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
+	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
 #endif
 #ifdef power_all_disable
 	power_all_disable();
@@ -105,7 +107,9 @@ VOID setup( VOID )
 	TEST_SW2_ENABLE();
 
 
+#ifdef CO_LED_CTRL
 	TEST_LED1_ON();
+#endif
 
 
 	// PCINTn Enable
@@ -117,7 +121,9 @@ VOID setup( VOID )
 
 
 	// LCD初期化
+#ifdef CO_LCD_CTRL
 	Lcd_Init();
+#endif
 
 
 	// 割り込み許可
@@ -141,7 +147,7 @@ VOID main( VOID )
 #endif
 
 
-	CLK_DIV256();
+	CLK_DIVN();
 
 	while( 1 ) {	/* main event loop */
 #ifdef CO_SLEEP_ENABLE
@@ -179,9 +185,11 @@ VOID main( VOID )
 					break;
 				case E_IR_RECV_STAT_IDLE:
 					CLK_DIV1();
+					Usart_Init( 38400 );
 					Usart_Set_Stdout();
 					printf_P( PSTR("\nrecv begin\n") );
 					Ir_Recv_Start();
+					set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
 					break;
 			}
 		}
@@ -198,11 +206,17 @@ VOID main( VOID )
 				Ir_Frame_Dump();
 				gIr_Recv_Stat = E_IR_RECV_STAT_IDLE;
 				Ir_Recv_EventHistoryDump();
+#ifdef CO_LED_CTRL
+				TEST_LED3_OFF();
+#endif
 
-#ifdef CO_CLOCK_REDUCE_MODE
+				set_sleep_mode( SLEEP_MODE_PWR_DOWN );
+#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
 				Usart_Wait_WriteComplete();
 #endif
-				CLK_DIV256();
+				Usart_Close();
+
+				CLK_DIVN();
 				break;
 			case E_IR_RECV_STAT_ERR:
 				Ir_Recv_Stop();
@@ -212,20 +226,28 @@ VOID main( VOID )
 				Ir_Frame_Dump();
 				gIr_Recv_Stat = E_IR_RECV_STAT_IDLE;
 				gIr_Recv_Err = E_IR_RECV_ERR_NONE;
+#ifdef CO_LED_CTRL
+				TEST_LED3_ON();
+#endif
 
-#ifdef CO_CLOCK_REDUCE_MODE
+				set_sleep_mode( SLEEP_MODE_PWR_DOWN );
+#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
 				Usart_Wait_WriteComplete();
 #endif
-				CLK_DIV256();
+				Usart_Close();
+
+				CLK_DIVN();
 				break;
 		}
 
 
 		// メインループ受信モニタ用
 #ifdef CO_MAINLOOP_MONITOR
+#ifdef CO_LCD_CTRL
 		Lcd_Set_Stdout();
 		Lcd_Goto( 0, 1 );
 		printf_P( PSTR("%5u"), loopcnt );
+#endif
 		loopcnt++;
 #endif
 
