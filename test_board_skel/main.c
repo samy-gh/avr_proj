@@ -15,6 +15,13 @@
 #include "usbdrv/usbdrv.h"
 
 
+// メインループの動作を見る
+//#define CO_MAINLOOP_MONITOR
+
+// スリープ(省電力)モードON
+#define CO_SLEEP_ENABLE
+
+
 /*
 
  「重要」
@@ -167,7 +174,9 @@ SIGNAL(PCINT1_vect)
 	Test_Sw_Sw1Pcint1Hdl();
 	Test_Sw_Sw2Pcint1Hdl();
 
+#ifdef CO_SLEEP_ENABLE
 	sleep_disable();
+#endif
 }
 
 
@@ -177,10 +186,14 @@ VOID setup( VOID )
 	WDTCSR = 0x00;
 
 	// パワーセーブ
+#ifdef CO_SLEEP_ENABLE
 	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
 //	set_sleep_mode( SLEEP_MODE_STANDBY );
 //	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
-	PRR = 0xFF;
+#endif
+#ifdef power_all_disable
+	power_all_disable();
+#endif
 
 	// USB初期化
 	usbInit();
@@ -231,11 +244,15 @@ VOID print_banner( VOID )
 VOID main( VOID ) __attribute__((noreturn));
 VOID main( VOID )
 {
+#ifdef CO_MAINLOOP_MONITOR
+	ULONG loopcnt = 0;
+#endif
+
 	setup();
 	print_banner();
 
-	ULONG loopcnt = 0;
 	while( 1 ) {	/* main event loop */
+#ifdef CO_SLEEP_ENABLE
 		// すべての割り込みハンドラ内でsleep_disable()を実施している。
 		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
 		// 発生してもsleep()しなくなる。
@@ -243,14 +260,17 @@ VOID main( VOID )
 		cli();
 		sleep_enable();
 		sei();
+#endif
 
 		usbPoll();	/* 10msec以内(50msec以内？)にコール */
 		usart_poll();
 
+#ifdef CO_MAINLOOP_MONITOR
 		Lcd_Set_Stdout();
 		Lcd_Goto( 0, 1 );
 		Mystdout_PrintDigit( loopcnt );
 		loopcnt++;
+#endif
 
 		switch( Test_Sw_Is_Sw1Chg() ) {
 			case E_TEST_SW_EVENT_ON:
@@ -283,7 +303,9 @@ VOID main( VOID )
 		}
 
 
+#ifdef CO_SLEEP_ENABLE
 		sleep_cpu();
+#endif
 	}
 }
 

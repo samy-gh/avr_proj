@@ -1,13 +1,13 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 05-Mar-2011.
+# Last Change: 06-Mar-2011.
 #
 
 ##
 ## デバイス設定
 ##
-DEVICE = atmega328
+DEVICE = atmega328p
 #DEVICE = attiny2313
 #F_CPU = 12000000
 F_CPU = 16000000
