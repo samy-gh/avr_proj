@@ -16,7 +16,7 @@ VOID Test_Sw_Sw2Pcint1Hdl( VOID )
 {
 	UCHAR sw_stat;
 
-	if( (PCMSK1 & _BV(PCINT11)) == 0 ) {
+	if( bit_is_clear( PCMSK1, PCINT11 ) ) {
 		return;
 	}
 

@@ -19,15 +19,12 @@ BOOL Usart_Wait_WriteComplete( VOID )
 	}
 #endif
 
-	while( !( D_UCSRA & _BV(D_UDRE) ) ) {
-		;
-	}
+	loop_until_bit_is_set( D_UCSRA, D_UDRE );
 
 	// システムクロックによっては間に合わないかもしれない
 	sbi( D_UCSRA, TXC0 );
-	while( !( D_UCSRA & _BV(TXC0) ) ) {
-		;
-	}
+
+	loop_until_bit_is_set( D_UCSRA, TXC0 );
 
 	return TRUE;
 }

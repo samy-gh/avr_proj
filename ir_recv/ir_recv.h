@@ -54,7 +54,7 @@ extern E_IR_RECV_ERR volatile gIr_Recv_Err;
 
 #define IR_RECV_PCINT8_HDL() \
 	do { \
-		if( (PCMSK1 & _BV(PCINT8)) != 0 ) {	\
+		if( bit_is_set( PCMSK1, PCINT8 ) ) {	\
 			Ir_Recv_Pcint8Hdl(); \
 		} \
 	} while( 0 )

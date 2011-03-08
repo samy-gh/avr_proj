@@ -32,7 +32,7 @@
 #define D_TIMER1_PERIOD_USEC 10000UL
 
 // IRóMƒsƒ“‚Ìó‘Ôæ“¾—p
-#define D_IR_RECV_PIN	(PINC & _BV(PINC0))
+#define D_IR_RECV_PIN	bit_is_set( PINC, PINC0 )
 
 #endif //__CUSTOM_H__
 

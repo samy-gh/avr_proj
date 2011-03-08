@@ -32,17 +32,14 @@ VOID Usart_Write( const UCHAR c )
 {
 	usart_store_char_tx( c );
 
-	if( (D_UCSRA & _BV(D_UDRE)) ) {
+	if( bit_is_set( D_UCSRA, D_UDRE ) ) {
 		sbi( D_UCSRB, D_UDRIE );
 	}
 }
 #else //!CO_USART_TX_INTERRUPT
 VOID Usart_Write( const UCHAR c )
 {
-	while( !(D_UCSRA & _BV(D_UDRE)) ) {
-		;
-	}
-
+	loop_until_bit_is_set( D_UCSRA, D_UDRE );
 	UDR0 = c;
 }
 #endif //!CO_USART_TX_INTERRUPT

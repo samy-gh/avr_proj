@@ -5,6 +5,7 @@
 // samylib
 #include "my_typedef.h"
 
+
 VOID Usart_PrintDigitN( UINT val, UINT print_lvl )
 {
 	UINT digit_1;
