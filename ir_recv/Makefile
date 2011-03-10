@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 06-Mar-2011.
+# Last Change: 11-Mar-2011.
 #
 
 ##
@@ -23,7 +23,7 @@ FUSE_EX=0xFF
 ## ソースコード設定
 ##
 TARGET=main-$(OSC).hex
-CSRCS+=main.c ir_recv.c ir_frame.c
+CSRCS+=main.c ir_recv.c ir_frame.c ir_frame_sony.c ir_frame_nec.c ir_frame_aeha.c
 
 
 ##
