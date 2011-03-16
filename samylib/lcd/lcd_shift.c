@@ -34,6 +34,6 @@ VOID Lcd_Shift( const UCHAR data )
 	}
 	_Lcd_Write_Data( reg_val );	// Lo
 	_Lcd_ToggleE();
-	_delay_us( 40 );	//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 }
 

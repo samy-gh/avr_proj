@@ -61,6 +61,16 @@
 #define		D_LCD_D7_BIT		0
 #endif
 
+
+// ‘Ò‹@ŠÔ‚Ì’²®
+// ŠÔ x D_LCD_WAIT_FACTOR‚É‚È‚éBD_LCD_WAIT_FACTOR‚Í®”B
+#ifdef		D_LCD_WAIT_FACTOR
+#define		LCD_WAIT_FACTOR( time )	((time) * (D_LCD_WAIT_FACTOR))
+#else
+#define		LCD_WAIT_FACTOR( time )	(time)
+#endif
+
+
 #define		REG_CONCAT( a, b )		a ## b
 #define		BIT_CONCAT( a, b, c )	a ## b ## c
 

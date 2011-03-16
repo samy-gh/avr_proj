@@ -27,48 +27,48 @@ VOID Lcd_Open( VOID )
 	sbi( REG_DDR(D_LCD_EN_PORT_NAME), BIT_DDR(D_LCD_EN_PORT_NAME, D_LCD_EN_BIT) );
 
 
-	_delay_ms( 15 );					//15ms以上wait
+	_delay_ms( LCD_WAIT_FACTOR(15) );	//15ms以上wait
 	// デフォルト設定 8bitモード
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0x3 );
 	_Lcd_ToggleE();
-	_delay_ms( 5 );						//5ms以上wait
+	_delay_ms( LCD_WAIT_FACTOR(5) );	//5ms以上wait
 	// デフォルト設定 8bitモード
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0x3 );
 	_Lcd_ToggleE();
-	_delay_us( 100 );					//100us以上wait
+	_delay_us( LCD_WAIT_FACTOR(100) );	//100us以上wait
 	// デフォルト設定 8bitモード
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0x3 );
 	_Lcd_ToggleE();
-	_delay_us( 40 );					//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 	// デフォルト設定 8bit->4bitモード
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0x2 );
 	_Lcd_ToggleE();
-	_delay_us( 40 );					//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 	// ファンクションセット
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0x2 );		// Hi
 	_Lcd_ToggleE();
 	_Lcd_Write_Data( 0x8 );		// Lo
 	_Lcd_ToggleE();
-	_delay_us( 40 );					//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 	// 表示on/off初期化
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0x0 );		// Hi
 	_Lcd_ToggleE();
 	_Lcd_Write_Data( 0x8 );		// Lo
 	_Lcd_ToggleE();
-	_delay_us( 40 );					//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 	// エントリーモードセット
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0x0 );		// Hi
 	_Lcd_ToggleE();
 	_Lcd_Write_Data( 0x6 );		// Hi
 	_Lcd_ToggleE();
-	_delay_us( 40 );					//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 	Lcd_Cls();							// 表示クリア
 }
 

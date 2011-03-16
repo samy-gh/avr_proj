@@ -39,6 +39,6 @@ VOID Lcd_Control( const UCHAR disonoff, const UCHAR curonoff, const UCHAR curbli
 	}
 	_Lcd_Write_Data( data );
 	_Lcd_ToggleE();
-	_delay_us( 40 );	//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 }
 

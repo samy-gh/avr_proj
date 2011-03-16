@@ -29,7 +29,7 @@ VOID Lcd_SetFont( UINT ui_font_no, UCHAR pc_font[] )
 	_Lcd_ToggleE();
 	_Lcd_Write_Data( ui_font_no & 0x0F );		// 2nd
 	_Lcd_ToggleE();
-	_delay_us( 40 );				//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );			//wait 40us
 
 	for( ui_loopcnt = 0; ui_loopcnt < 8; ui_loopcnt++ ) {
 		Lcd_Write( pc_font[ui_loopcnt] );

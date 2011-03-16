@@ -26,6 +26,6 @@ VOID Lcd_Write( const UCHAR c )
 	_Lcd_ToggleE();
 	_Lcd_Write_Data( c & 0x0F );			// â∫à ÉfÅ[É^
 	_Lcd_ToggleE();
-	_delay_us( 40 );	//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 }
 

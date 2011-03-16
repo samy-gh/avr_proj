@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 06-Mar-2011.
+# Last Change: 16-Mar-2011.
 #
 
 ##
@@ -34,6 +34,8 @@ ASMSRCS+=usbdrv/usbdrvasm.S
 include ../samylib/samylib.mak
 # USART‘—MŠ„‚è‚İ‚ÍUSB’ÊM‚ğ‘jŠQ‚·‚é‚Ì‚Å–³Œø‚É‚·‚é
 CFLAGS+= -DD_USART_TX_BUFFER_SIZE=0
+# LCD§ŒäwaitŠÔ‚Ì”{—¦ (3.3V‹ì“®‚Í2‚É‚·‚é)
+CFLAGS+= -DD_LCD_WAIT_FACTOR=2
 
 
 ##

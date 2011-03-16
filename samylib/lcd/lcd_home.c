@@ -26,6 +26,6 @@ VOID Lcd_Home( VOID )
 	_Lcd_ToggleE();
 	_Lcd_Write_Data( 2 );	// Lo
 	_Lcd_ToggleE();
-	_delay_us( 1600 );
+	_delay_us( LCD_WAIT_FACTOR(1600) );	// 1.6ms wait
 }
 

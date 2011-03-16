@@ -44,12 +44,12 @@ VOID Lcd_Goto( const UCHAR x, const UCHAR y )
 
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 
-	_Lcd_Write_Data( (addr>>4) | 0x8 );	//上位アドレス
+	_Lcd_Write_Data( (addr>>4) | 0x8 );		//上位アドレス
 	_Lcd_ToggleE();
 
 	_Lcd_Write_Data( (addr & 0x0F) );		//下位アドレス
 	_Lcd_ToggleE();
 
-	_delay_us( 40 );						//wait 40us
+	_delay_us( LCD_WAIT_FACTOR(40) );		//wait 40us
 }
 
