@@ -2,6 +2,7 @@
 // プロジェクト固有
 #include "ir_recv.h"
 #include "ir_frame.h"
+#include "ir_send.h"
 #include "custom.h"
 
 // samylib
@@ -72,6 +73,7 @@ VOID print_banner( VOID )
 #ifdef CO_LCD_CTRL
 	Lcd_Set_Stdout();
 	printf_P( hello_str );
+	Lcd_Close( TRUE );
 #endif
 
 #if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
@@ -146,6 +148,7 @@ VOID main( VOID )
 	printf_P( PSTR("timer1 clock sel=%X\ntimer1 period=%u\n"), gTimer1_ClockSelectBits, gTimer1_PwmPeriod );
 #endif
 
+	Ir_Send();
 
 	CLK_DIVN();
 
@@ -244,9 +247,11 @@ VOID main( VOID )
 		// メインループ受信モニタ用
 #ifdef CO_MAINLOOP_MONITOR
 #ifdef CO_LCD_CTRL
+		Lcd_Init();
 		Lcd_Set_Stdout();
 		Lcd_Goto( 0, 1 );
 		printf_P( PSTR("%5u"), loopcnt );
+		Lcd_Close();
 #endif
 		loopcnt++;
 #endif
