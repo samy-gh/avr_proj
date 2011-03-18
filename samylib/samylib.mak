@@ -52,14 +52,19 @@ CSRCS+=$(CUR_PATH)/lcd/lcd_set_block.c
 
 CSRCS+=$(CUR_PATH)/timer1/timer1_ovf_vect.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_compa_vect.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_compb_vect.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_init.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_enable_ovf_intr.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_enable_compa_intr.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_enable_compb_intr.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_start.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_restart.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_stop.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_close.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_set_period.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_set_pwm_duty.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_set_pwmpin.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_unset_pwmpin.c
 
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw1_chg.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw2_chg.c

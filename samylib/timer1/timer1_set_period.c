@@ -37,7 +37,7 @@ VOID Timer1_Set_Period( ULONG usec )
 	}
 
 	cbi( PRR, PRTIM1 );										// disable power save mode
-	OCR1A = ICR1 = gTimer1_PwmPeriod = ul_cycles;			// ICR1 is TOP in p & f correct pwm mode
+	OCR1A = OCR1B = ICR1 = gTimer1_PwmPeriod = ul_cycles;			// ICR1 is TOP in p & f correct pwm mode
 	TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
 }
 
