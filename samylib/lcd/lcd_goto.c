@@ -23,6 +23,10 @@ VOID Lcd_Goto( const UCHAR x, const UCHAR y )
 	// DB=1xxx_xxxx, RS=0, RW=0
 	UCHAR addr;
 
+	if( !LCD_IS_OPEN() ) {
+		return;
+	}
+
 	switch( y ) {
 		case 0:
 			addr = D_LCD_ROW_1;

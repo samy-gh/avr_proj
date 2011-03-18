@@ -9,13 +9,24 @@
 // samylib
 #include "my_typedef.h"
 #include "common.h"
+#include "int_lock.h"
 
 // WinAVR
 #include <util/delay.h>
 
 
-VOID Lcd_Open( VOID )
+BOOL Lcd_Open( VOID )
 {
+	UCHAR const lockKey = Int_Lock();
+
+	if( gLcd_Is_Open != E_LCD_IS_OPEN_FREE ) {
+		Int_Unlock( lockKey );
+		return FALSE;
+	}
+
+	gLcd_Is_Open = E_LCD_IS_OPEN_USING;
+	Int_Unlock( lockKey );
+
 	cbi( REG_PORT(D_LCD_EN_PORT_NAME), BIT_PORT(D_LCD_EN_PORT_NAME, D_LCD_EN_BIT) );	// EN=0
 
 	// out port 設定
@@ -70,6 +81,7 @@ VOID Lcd_Open( VOID )
 	_Lcd_ToggleE();
 	_delay_us( LCD_WAIT_FACTOR(40) );	//wait 40us
 	Lcd_Cls();							// 表示クリア
-}
 
+	return TRUE;
+}
 

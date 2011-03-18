@@ -19,6 +19,10 @@
  *--------------------------------------------------*/
 VOID Lcd_Cls( VOID )
 {
+	if( !LCD_IS_OPEN() ) {
+		return;
+	}
+
 	// DB=0000_0001, RS=0, RW=0
 
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );

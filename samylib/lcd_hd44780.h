@@ -54,13 +54,21 @@
 /* データ型宣言																*/
 /****************************************************************************/
 typedef unsigned char byte;
+typedef enum {
+	E_LCD_IS_OPEN_FREE,		// LCD未使用
+	E_LCD_IS_OPEN_USING,	// LCDにてGPIO使用中
+	E_LCD_IS_OPEN_BLOCK,	// 他の機能がGPIO使用中
+	E_LCD_IS_OPEN_MAX
+} E_LCD_IS_OPEN;
 
 
 /****************************************************************************/
 /* マクロ宣言																*/
 /****************************************************************************/
-#define LCD_BITMAP(a) (LCD_BITMAP_ ## a)
+#define LCD_BITMAP(a)		(LCD_BITMAP_ ## a)
 #define LCD_PGM_PUTS( str )	Lcd_PgmPuts( PSTR str );
+#define LCD_IS_OPEN()		((gLcd_Is_Open == E_LCD_IS_OPEN_USING)?(TRUE):(FALSE))
+#define LCD_IS_BLOCK()		((gLcd_Is_Open == E_LCD_IS_OPEN_BLOCK)?(TRUE):(FALSE))
 
 
 /****************************************************************************/
@@ -73,9 +81,10 @@ extern VOID Lcd_Control( const UCHAR disonoff, const UCHAR curonoff, const UCHAR
 extern VOID Lcd_Goto( const UCHAR x, const UCHAR y );
 extern VOID Lcd_Shift( const UCHAR data );
 extern VOID Lcd_Write( const UCHAR c );
-extern VOID Lcd_Open( VOID );
-extern VOID Lcd_Close( VOID );
+extern BOOL Lcd_Open( VOID );
+extern VOID Lcd_Close( BOOL en_set_low );
 extern VOID Lcd_SetFont( UINT ui_font_no, UCHAR pc_font[] );
+extern BOOL Lcd_Set_Block( BOOL block_stat );
 
 extern VOID Lcd_Set_Stdout( VOID );
 
@@ -88,6 +97,8 @@ extern VOID Lcd_PrintHexN( UINT val, UINT print_lvl );
 
 
 // ここから内部用
+extern volatile E_LCD_IS_OPEN gLcd_Is_Open;
+
 extern VOID _Lcd_ToggleE( VOID );
 extern VOID _Lcd_Write_Data( UCHAR data_4bit );
 

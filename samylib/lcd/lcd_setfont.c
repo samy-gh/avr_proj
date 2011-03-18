@@ -22,6 +22,10 @@ VOID Lcd_SetFont( UINT ui_font_no, UCHAR pc_font[] )
 	UINT ui_loopcnt;
 	// DB=0000_0001, RS=0, RW=0
 
+	if( !LCD_IS_OPEN() ) {
+		return;
+	}
+
 	ui_font_no &= 0x7;
 	ui_font_no <<= 3;
 

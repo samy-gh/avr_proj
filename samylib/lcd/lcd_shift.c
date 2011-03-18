@@ -23,6 +23,10 @@ VOID Lcd_Shift( const UCHAR data )
 
 	UCHAR	reg_val;
 
+	if( !LCD_IS_OPEN() ) {
+		return;
+	}
+
 	cbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );
 	_Lcd_Write_Data( 0 );	// Hi
 	_Lcd_ToggleE();

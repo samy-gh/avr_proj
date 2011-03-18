@@ -19,6 +19,10 @@
  *--------------------------------------------------*/
 VOID Lcd_Write( const UCHAR c )
 {
+	if( !LCD_IS_OPEN() ) {
+		return;
+	}
+
 	// DB=xxxx_xxxx, RS=1, RW=0
 	//
 	sbi( REG_PORT(D_LCD_RS_PORT_NAME), BIT_PORT(D_LCD_RS_PORT_NAME, D_LCD_RS_BIT) );	// in portê›íË
