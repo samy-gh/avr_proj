@@ -64,3 +64,5 @@ CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw2_chg.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw1_pcint1_hdl.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw2_pcint1_hdl.c
 
+CSRCS+=$(CUR_PATH)/int_lock/int_lock.c
+
