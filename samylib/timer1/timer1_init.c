@@ -22,6 +22,9 @@ VOID Timer1_Init( ULONG usec )
 	TCCR1B = _BV(WGM13) | _BV(WGM12);	// set mode as ctc mode, stop the timer
 	TIMSK1 = 0;					// disable all interrupts
 
+	gTimer1_PwmPinAEnable = 0;
+	gTimer1_PwmPinBEnable = 0;
+
 	Timer1_Set_Period( usec );
 }
 

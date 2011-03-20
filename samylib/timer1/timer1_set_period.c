@@ -10,8 +10,8 @@
 #include <avr/io.h>
 
 
-UCHAR gTimer1_ClockSelectBits;
-UINT gTimer1_PwmPeriod;
+UCHAR volatile gTimer1_ClockSelectBits;
+UINT volatile gTimer1_PwmPeriod;
 
 VOID Timer1_Set_Period( ULONG usec )
 {

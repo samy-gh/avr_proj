@@ -21,10 +21,12 @@ VOID Timer1_Unset_PwmPin( UCHAR pin )
 	if( pin == 0 ) {
 		cbi( DDRB, DDB1 );
 		cbi( TCCR1A, COM1A1 );
+		gTimer1_PwmPinAEnable = 0;
 	}
 	else {
 		cbi( DDRB, DDB2 );
 		cbi( TCCR1A, COM1B1 );
+		gTimer1_PwmPinBEnable = 0;
 	}
 
 	if( !Lcd_Set_Block( FALSE ) ) {
