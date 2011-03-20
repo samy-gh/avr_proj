@@ -37,21 +37,24 @@ VOID Ir_Send( VOID )
 	cbi( PORTB ,PB1 );
 
 
-	Timer1_Init( 1000000UL / 38000UL );			// 38kHz = 26usec
-	Timer1_Set_PwmPin( 1, 3333 );	// 50%
-//	Timer1_Set_PwmPin( 1, 5000 );	// 50%
-//	Timer1_Set_PwmDuty( 1, 5000 );
+	Timer1_Init( 1 );
+	Timer1_Set_Period_Direct( _BV(CS10), 421 );	// 38kHz = 26.32usec
+	Timer1_Set_PwmPin( 1, 3333 );	// 33%
 //	Timer1_Enable_CompaIntr( ir_send_compa_inthdl );
 //	Timer1_Enable_CompbIntr( ir_send_compb_inthdl );
 	Timer1_Enable_OvfIntr( ir_send_ovf_inthdl );
 	
 	Timer1_Start();
 
+#if 1
 	Usart_Set_Stdout();
-	printf_P( PSTR("ICR1=%u, OCR1A=%u"), ICR1, OCR1A );
+	printf_P( PSTR("ICR1=%u, OCR1B=%u"), ICR1, OCR1B );
 	printf_P( PSTR(", TCCR1A=0x%x, TCCR1B=0x%x\n"), TCCR1A, TCCR1B );
+	printf_P( PSTR("bit=0x%x\n"), gTimer1_ClockSelectBits );
+#endif
 
-//	Timer1_Unset_PwmPin( 0 );
+//	Timer1_Unset_PwmPin( 1 );
+
 	while( 1 ) {
 	}
 }
