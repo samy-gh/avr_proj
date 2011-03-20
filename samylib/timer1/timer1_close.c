@@ -17,6 +17,9 @@ VOID Timer1_Close( VOID )
 	cbi( TIMSK1, OCIE1B );
 	cbi( TIMSK1, TOIE1 );
 
+	Timer1_Unset_PwmPin( 0 );
+	Timer1_Unset_PwmPin( 1 );
+
 #ifdef power_timer1_disable
 	power_timer1_disable();								// enable power-save mode
 #endif
