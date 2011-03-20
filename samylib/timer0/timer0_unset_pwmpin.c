@@ -20,6 +20,8 @@ VOID Timer0_Unset_PwmPin( VOID )
 	cbi( DDRD, DDD5 );
 	cbi( TCCR0A, COM0B1 );
 
+	gTimer0_PwmPinEnable = 0;
+
 	if( !Lcd_Set_Block( FALSE ) ) {
 		return;
 	}

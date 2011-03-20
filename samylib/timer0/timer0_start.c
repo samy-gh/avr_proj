@@ -13,5 +13,8 @@
 VOID Timer0_Start( VOID )
 {
 	TCCR0B |= gTimer0_ClockSelectBits;
+	if( gTimer0_PwmPinEnable != 0 ) {
+		sbi( TCCR0A, COM0B1 );
+	}
 }
 

@@ -11,6 +11,8 @@
 #include <avr/io.h>
 
 
+volatile UCHAR gTimer0_PwmPinEnable = 0;
+
 // duty: 0:0%  10000:100%
 VOID Timer0_Set_PwmPin( UINT duty )
 {
@@ -20,7 +22,8 @@ VOID Timer0_Set_PwmPin( UINT duty )
 
 	Timer0_Set_PwmDuty( duty );
 
+	cbi( PORTD, PD5 );
 	sbi( DDRD, DDD5 );
-	sbi( TCCR0A, COM0B1 );
+	gTimer0_PwmPinEnable = 1;
 }
 

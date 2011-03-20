@@ -11,8 +11,9 @@
 
 extern VOID (*gTimer0_CompbCallbackFunc)( VOID );
 extern VOID (*gTimer0_OvfCallbackFunc)( VOID );
-extern UCHAR gTimer0_ClockSelectBits;
-extern UCHAR gTimer0_PwmPeriod;
+extern volatile UCHAR gTimer0_ClockSelectBits;
+extern volatile UCHAR gTimer0_PwmPeriod;
+extern volatile UCHAR gTimer0_PwmPinEnable;
 
 extern VOID Timer0_Init( ULONG usec );	// Initialize and Disable Power-save
 extern VOID Timer0_Start( VOID );

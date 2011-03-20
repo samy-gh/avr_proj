@@ -23,6 +23,8 @@ VOID Timer0_Init( ULONG usec )
 	// disable all interrupts
 	TIMSK0 = 0;
 
+	gTimer0_PwmPinEnable = 0;
+
 	Timer0_Set_Period( usec );
 }
 
