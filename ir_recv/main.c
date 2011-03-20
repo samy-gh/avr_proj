@@ -148,8 +148,6 @@ VOID main( VOID )
 	printf_P( PSTR("timer1 clock sel=%X\ntimer1 period=%u\n"), gTimer1_ClockSelectBits, gTimer1_PwmPeriod );
 #endif
 
-	Ir_Send();
-
 	CLK_DIVN();
 
 	while( 1 ) {	/* main event loop */
@@ -197,6 +195,13 @@ VOID main( VOID )
 			}
 		}
 
+		if( Test_Sw_Is_Sw2Chg() == E_TEST_SW_EVENT_ON ) {
+			CLK_DIV1();
+			Usart_Init( 38400 );
+			Usart_Set_Stdout();
+			printf_P( PSTR("\nsend begin\n") );
+			Ir_Send();
+		}
 
 		// IR受信イベント(完了/エラー)
 		switch( gIr_Recv_Stat ) {
