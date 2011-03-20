@@ -62,6 +62,7 @@ CSRCS+=$(CUR_PATH)/timer1/timer1_restart.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_stop.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_close.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_set_period.c
+CSRCS+=$(CUR_PATH)/timer1/timer1_set_period_direct.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_set_pwm_duty.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_set_pwmpin.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_unset_pwmpin.c

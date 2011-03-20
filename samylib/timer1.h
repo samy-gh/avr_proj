@@ -29,6 +29,7 @@ extern VOID Timer1_Disable_OvfIntr( VOID );
 extern VOID Timer1_Disable_CompaIntr( VOID );
 extern VOID Timer1_Disable_CompbIntr( VOID );
 extern VOID Timer1_Set_Period( ULONG usec );
+extern VOID Timer1_Set_Period_Direct( UCHAR clk_sel, ULONG ul_cycles );
 extern VOID Timer1_Set_PwmDuty( UCHAR pin, UINT duty );
 
 #endif //__TIMER1_H__
