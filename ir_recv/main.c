@@ -151,6 +151,9 @@ VOID main( VOID )
 	CLK_DIVN();
 
 	while( 1 ) {	/* main event loop */
+		cbi( PORTD, PD5 );
+		sbi( DDRD, DDD5 );
+
 #ifdef CO_SLEEP_ENABLE
 		// すべての割り込みハンドラ内でsleep_disable()を実施している。
 		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
@@ -201,6 +204,15 @@ VOID main( VOID )
 			Usart_Set_Stdout();
 			printf_P( PSTR("\nsend begin\n") );
 			Ir_Send();
+			Test_Sw_Is_Sw2Chg();
+			printf_P( PSTR("\nsend comoplete\n") );
+
+#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
+			Usart_Wait_WriteComplete();
+#endif
+			Usart_Close();
+
+			CLK_DIVN();
 		}
 
 		// IR受信イベント(完了/エラー)

@@ -6,7 +6,7 @@
 #define CO_LCD_CTRL
 
 // LED§Œä
-#define CO_LED_CTRL
+//#define CO_LED_CTRL
 
 // ƒƒCƒ“ƒ‹[ƒv‚Ì“®ì‚ğŒ©‚é
 //#define CO_MAINLOOP_MONITOR
