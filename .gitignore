@@ -1,0 +1,10 @@
+tags
+cscope.out
+cscope.files
+*.o
+*.d
+*.map
+*.hex
+*.elf
+*.lnk
+ctags_exclude_files.txt
