@@ -82,6 +82,23 @@ CSRCS+=$(CUR_PATH)/timer1/timer1_set_pwm_duty.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_set_pwmpin.c
 CSRCS+=$(CUR_PATH)/timer1/timer1_unset_pwmpin.c
 
+CSRCS+=$(CUR_PATH)/timer2/timer2_ovf_vect.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_compa_vect.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_compb_vect.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_init.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_enable_ovf_intr.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_enable_compa_intr.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_enable_compb_intr.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_start.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_restart.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_stop.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_close.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_set_period.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_set_period_direct.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_set_pwm_duty.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_set_pwmpin.c
+CSRCS+=$(CUR_PATH)/timer2/timer2_unset_pwmpin.c
+
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw1_chg.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw2_chg.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw1_pcint1_hdl.c
