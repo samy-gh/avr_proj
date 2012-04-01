@@ -104,5 +104,14 @@ CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw2_chg.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw1_pcint1_hdl.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw2_pcint1_hdl.c
 
+CSRCS+=$(CUR_PATH)/framework/btn_ctrl.c
+CSRCS+=$(CUR_PATH)/framework/btn_print.c
+CSRCS+=$(CUR_PATH)/framework/event_loop.c
+CSRCS+=$(CUR_PATH)/framework/clock_hdl.c
+CSRCS+=$(CUR_PATH)/framework/softtimer_int.c
+CSRCS+=$(CUR_PATH)/framework/softtimer_start.c
+CSRCS+=$(CUR_PATH)/framework/softtimer_stop.c
+CSRCS+=$(CUR_PATH)/framework/msec2clock.c
+
 CSRCS+=$(CUR_PATH)/int_lock/int_lock.c
 
