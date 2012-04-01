@@ -17,6 +17,7 @@
 extern VOID Usart_Init( const ULONG baud );
 extern VOID Usart_Close( VOID );
 extern VOID Usart_Set_Stdout( VOID );
+extern VOID Usart_Set_Stderr( VOID );
 extern VOID Usart_Write( const UCHAR c );
 extern UCHAR Usart_Available( VOID );
 extern BOOL Usart_Wait_WriteComplete( VOID );
