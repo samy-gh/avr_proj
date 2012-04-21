@@ -71,19 +71,6 @@
 
 typedef UINT T_SYS_EVENT;
 typedef UINT T_SYS_STAT;
-typedef UINT T_BEEP_TYPE;
-
-typedef enum {
-	E_SYNC,
-	E_ASYNC
-} T_SYNC_MODE;
-
-/* Beep音鳴動周期定義 */
-typedef struct {
-	UINT ui_on_msec;	/* オン区間msec */
-	UINT ui_off_msec;	/* オフ区間msec */
-	UINT ui_repeat;		/* 繰り返し回数 */
-} T_BEEP_DUTY;
 
 /* システムイベントテーブル型宣言 */
 typedef struct {
@@ -112,10 +99,6 @@ extern T_SERIAL_CMD gt_serial_event_tbl[];
 
 /* タイマイベント通知テーブル */
 extern volatile UINT gt_event_timer[];
-
-/* Beep音定義テーブル */
-extern volatile T_BEEP_DUTY gt_beep_duty_tbl[];	/* TODO: テーブル触る時サイズチェック */
-extern UINT gui_beep_duty_tbl_num;
 
 extern VOID event_loop( VOID );
 
