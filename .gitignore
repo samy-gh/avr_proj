@@ -7,4 +7,6 @@ cscope.files
 *.hex
 *.elf
 *.lnk
+*.swp
+*.swo
 ctags_exclude_files.txt
