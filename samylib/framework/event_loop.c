@@ -125,14 +125,39 @@ static __inline__ T_SYS_EVENT get_btn_event( T_BTN_TYPE btn_type, const T_BTN_EV
 /*----------------------------------------------*/
 __inline__ static T_SYS_EVENT get_event( VOID )
 {
-#ifdef CO_ENABLE_SOFTTIMER
-	T_TIMER_TYPE t_timer_type;
+#ifdef CO_ENABLE_SERIAL_CMD
+	{
+		T_SYS_EVENT event;
+		event = get_serial_command();
+		if( event != E_EVENT_IDLE ) {
+			return event;
+		}
+	}
+#endif //CO_ENABLE_SERIAL_CMD
 
-	/* タイムアウトイベント */
-	for( t_timer_type = (T_TIMER_TYPE)0; t_timer_type < gui_timer_param_num; t_timer_type++ ) {
-		if( gt_event_timer[t_timer_type] != 0 ) {
-			gt_event_timer[t_timer_type] = 0;
-			return gt_timer_param[t_timer_type].t_timeout_event;
+#ifdef CO_ENABLE_I2C_SLAVE_READ
+	if( _gui_event_i2c_slave_read != 0 ) {
+		_gui_event_i2c_slave_read = 0;
+		return E_EVENT_I2C_SLAVE_READ;
+	}
+#endif
+#ifdef CO_ENABLE_I2C_SLAVE_WRITE
+	if( _gui_event_i2c_slave_write != 0 ) {
+		_gui_event_i2c_slave_write = 0;
+		return E_EVENT_I2C_SLAVE_WRITE;
+	}
+#endif
+
+#ifdef CO_ENABLE_SOFTTIMER
+	{
+		T_TIMER_TYPE t_timer_type;
+
+		/* タイムアウトイベント */
+		for( t_timer_type = (T_TIMER_TYPE)0; t_timer_type < gui_timer_param_num; t_timer_type++ ) {
+			if( gt_event_timer[t_timer_type] != 0 ) {
+				gt_event_timer[t_timer_type] = 0;
+				return gt_timer_param[t_timer_type].t_timeout_event;
+			}
 		}
 	}
 #endif //CO_ENABLE_SOFTTIMER
@@ -316,24 +341,7 @@ __inline__ static T_SYS_EVENT get_event( VOID )
 	}
 #endif
 
-#ifdef CO_ENABLE_I2C_SLAVE_READ
-	if( _gui_event_i2c_slave_read != 0 ) {
-		_gui_event_i2c_slave_read = 0;
-		return E_EVENT_I2C_SLAVE_READ;
-	}
-#endif
-#ifdef CO_ENABLE_I2C_SLAVE_WRITE
-	if( _gui_event_i2c_slave_write != 0 ) {
-		_gui_event_i2c_slave_write = 0;
-		return E_EVENT_I2C_SLAVE_WRITE;
-	}
-#endif
-
-#ifdef CO_ENABLE_SERIAL_CMD
-	return get_serial_command();
-#else
 	return E_EVENT_IDLE;
-#endif //CO_ENABLE_SERIAL_CMD
 }
 
 

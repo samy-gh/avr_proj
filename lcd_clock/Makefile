@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 01-Apr-2012.
+# Last Change: 28-Apr-2012.
 #
 
 ##
@@ -42,10 +42,14 @@ CFLAGS+= -DCO_ENABLE_PCINT11_BTN
 # スリープモード有効
 #CFLAGS+= -DCO_SLEEP_ENABLE
 # samylib 再コンパイルが必要
-CFLAGS+= -DCO_ENABLE_EVENT_TRACE_LOG
+#CFLAGS+= -DCO_ENABLE_EVENT_TRACE_LOG
 CFLAGS+= -DCO_ENABLE_SERIAL_CMD
 CFLAGS+= -DCO_ENABLE_SOFTTIMER
 CFLAGS+= -DE_TIMER_SYSTEM_MAX=3
+# USART送信割り込み無効
+CFLAGS+= -DD_USART_TX_BUFFER_SIZE=0
+# I2C slave readイベント有効
+CFLAGS+= -DCO_ENABLE_I2C_SLAVE_READ
 
 
 ##
