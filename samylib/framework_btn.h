@@ -64,9 +64,9 @@ extern UINT gui_long_push_wait_count;
 extern UINT gui_chatt_wait_count;
 
 // event_loop用
-extern volatile unsigned int _gui_event_btn_push[E_BTN_TYPE_MAX];
-extern volatile unsigned int _gui_event_btn_longpush[E_BTN_TYPE_MAX];
-extern volatile unsigned int _gui_event_btn_release[E_BTN_TYPE_MAX];
+extern volatile UCHAR _gui_event_btn_push[E_BTN_TYPE_MAX];
+extern volatile UCHAR _gui_event_btn_longpush[E_BTN_TYPE_MAX];
+extern volatile UCHAR _gui_event_btn_release[E_BTN_TYPE_MAX];
 
 // 割り込みハンドラ用
 #ifdef CO_ENABLE_PCINT0_BTN

@@ -47,9 +47,9 @@ UINT gui_chatt_wait_count = 0;
 /****************************************************************************/
 /* イベント通知制御変数(ステートマシンが参照する)							*/
 /****************************************************************************/
-volatile UINT _gui_event_btn_push[E_BTN_TYPE_MAX];
-volatile UINT _gui_event_btn_longpush[E_BTN_TYPE_MAX];
-volatile UINT _gui_event_btn_release[E_BTN_TYPE_MAX];
+volatile UCHAR _gui_event_btn_push[E_BTN_TYPE_MAX];
+volatile UCHAR _gui_event_btn_longpush[E_BTN_TYPE_MAX];
+volatile UCHAR _gui_event_btn_release[E_BTN_TYPE_MAX];
 
 
 /****************************************************************************/
