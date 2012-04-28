@@ -4,6 +4,7 @@
 #include "framework_clock_hdl.h"
 #include "framework_btn.h"
 #include "framework_softtimer.h"
+#include "framework_i2c.h"
 
 // samylib
 #include "my_typedef.h"
@@ -116,6 +117,7 @@ static __inline__ T_SYS_EVENT get_btn_event( T_BTN_TYPE btn_type, const T_BTN_EV
 	}
 	return E_EVENT_IDLE;
 }
+
 
 
 /*----------------------------------------------*/
@@ -314,6 +316,19 @@ __inline__ static T_SYS_EVENT get_event( VOID )
 	}
 #endif
 
+#ifdef CO_ENABLE_I2C_SLAVE_READ
+	if( _gui_event_i2c_slave_read != 0 ) {
+		_gui_event_i2c_slave_read = 0;
+		return E_EVENT_I2C_SLAVE_READ;
+	}
+#endif
+#ifdef CO_ENABLE_I2C_SLAVE_WRITE
+	if( _gui_event_i2c_slave_write != 0 ) {
+		_gui_event_i2c_slave_write = 0;
+		return E_EVENT_I2C_SLAVE_WRITE;
+	}
+#endif
+
 #ifdef CO_ENABLE_SERIAL_CMD
 	return get_serial_command();
 #else
@@ -327,7 +342,7 @@ __inline__ static T_SYS_EVENT get_event( VOID )
 /*----------------------------------------------*/
 VOID event_loop( VOID )
 {
-	T_SYS_EVENT t_sys_event;
+	T_SYS_EVENT t_sys_event = E_EVENT_IDLE;
 	T_SYS_EVENT_TBL *pt_sys_event_tbl;
 	UINT ui_loopnum;
 
@@ -339,6 +354,16 @@ VOID event_loop( VOID )
 //#ifdef CO_ENABLE_EVENT_TRACE_LOG
 //	fprintf_P( stderr, PSTR( "wait next event\n") );
 //#endif
+
+#ifdef CO_ENABLE_I2C_SLAVE_READ
+	if( t_sys_event == E_EVENT_I2C_SLAVE_READ ) {
+		i2c_slave_read_event_finish();
+	}
+#endif
+
+#ifdef CO_SLEEP_ENABLE
+		sleep_cpu();
+#endif
 
 		t_sys_event = get_event();
 
@@ -403,10 +428,6 @@ VOID event_loop( VOID )
 		if( t_sys_event != E_EVENT_IDLE ) {
 			fprintf_P( stderr, PSTR("return event loop stat=%u\n\n"), _gt_sys_stat );
 		}
-#endif
-
-#ifdef CO_SLEEP_ENABLE
-		sleep_cpu();
 #endif
 	}
 }

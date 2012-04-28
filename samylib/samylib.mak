@@ -117,6 +117,7 @@ CSRCS+=$(CUR_PATH)/framework/softtimer_int.c
 CSRCS+=$(CUR_PATH)/framework/softtimer_start.c
 CSRCS+=$(CUR_PATH)/framework/softtimer_stop.c
 CSRCS+=$(CUR_PATH)/framework/msec2clock.c
+CSRCS+=$(CUR_PATH)/framework/i2c_slave_read_event.c
 
 CSRCS+=$(CUR_PATH)/i2c/i2c_init.c
 CSRCS+=$(CUR_PATH)/i2c/i2c_master_buffer.c
