@@ -105,6 +105,10 @@ CSRCS+=$(CUR_PATH)/test_sw/test_sw_is_sw2_chg.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw1_pcint1_hdl.c
 CSRCS+=$(CUR_PATH)/test_sw/test_sw_sw2_pcint1_hdl.c
 
+CSRCS+=$(CUR_PATH)/framework/beep_set_portctrl.c
+CSRCS+=$(CUR_PATH)/framework/beep_start.c
+CSRCS+=$(CUR_PATH)/framework/beep_stop.c
+CSRCS+=$(CUR_PATH)/framework/beep_int.c
 CSRCS+=$(CUR_PATH)/framework/btn_ctrl.c
 CSRCS+=$(CUR_PATH)/framework/btn_print.c
 CSRCS+=$(CUR_PATH)/framework/event_loop.c
@@ -113,6 +117,29 @@ CSRCS+=$(CUR_PATH)/framework/softtimer_int.c
 CSRCS+=$(CUR_PATH)/framework/softtimer_start.c
 CSRCS+=$(CUR_PATH)/framework/softtimer_stop.c
 CSRCS+=$(CUR_PATH)/framework/msec2clock.c
+
+CSRCS+=$(CUR_PATH)/i2c/i2c_init.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_master_buffer.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_init_master_write.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_init_master_read.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_init_slave_write.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_init_slave_read.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_int_vect.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_int_vect_master_write.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_int_vect_master_read.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_int_vect_slave_write.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_int_vect_slave_read.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_reply.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_stop.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_release_bus.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_set_slave_addr.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_read_master.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_write_master.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_write_slave.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_attach_master_stop_event.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_attach_slave_rx_event.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_attach_slave_tx_event.c
+CSRCS+=$(CUR_PATH)/i2c/i2c_set_slave_addr_from_eeprom.c
 
 CSRCS+=$(CUR_PATH)/int_lock/int_lock.c
 
