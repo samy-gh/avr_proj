@@ -142,5 +142,12 @@ CSRCS+=$(CUR_PATH)/i2c/i2c_attach_slave_rx_event.c
 CSRCS+=$(CUR_PATH)/i2c/i2c_attach_slave_tx_event.c
 CSRCS+=$(CUR_PATH)/i2c/i2c_set_slave_addr_from_eeprom.c
 
+CSRCS+=$(CUR_PATH)/ir/ir_frame.c
+CSRCS+=$(CUR_PATH)/ir/ir_frame_aeha.c
+CSRCS+=$(CUR_PATH)/ir/ir_frame_nec.c
+CSRCS+=$(CUR_PATH)/ir/ir_frame_sony.c
+CSRCS+=$(CUR_PATH)/ir/ir_recv.c
+CSRCS+=$(CUR_PATH)/ir/ir_send.c
+
 CSRCS+=$(CUR_PATH)/int_lock/int_lock.c
 
