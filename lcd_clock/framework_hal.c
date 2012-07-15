@@ -8,6 +8,7 @@
 #include <timer2.h>
 #include <i2c.h>
 #include <usart.h>
+#include <ir.h>
 #include <framework_clock_hdl.h>
 #include <framework_btn.h>
 #include <framework_msec2clock.h>
@@ -64,6 +65,8 @@ SIGNAL(PCINT1_vect)
 #ifdef CO_SLEEP_ENABLE
 	sleep_disable();
 #endif
+
+	IR_RECV_PCINT8_HDL();
 }
 
 

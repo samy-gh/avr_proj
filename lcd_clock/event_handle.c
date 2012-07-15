@@ -13,6 +13,7 @@
 #include <framework_softtimer.h>
 #include <framework_i2c.h>
 #include <i2c.h>
+#include <ir.h>
 
 // WinAVR
 #include <avr/io.h>
@@ -44,6 +45,8 @@ static INT do_i2c_addr2( VOID );
 static INT do_timer( VOID );
 static INT do_timer_stop( VOID );
 static INT do_voice_test( VOID );
+static INT do_ir_send( VOID );
+static INT do_ir_recv( VOID );
 
 /* システムステータス種類 */
 typedef enum {
@@ -81,10 +84,11 @@ T_SYS_EVENT_TBL gt_sys_event_tbl_idle[] = {
 	{ E_EVENT_BTN0_PUSH,			do_nop },
 	{ E_EVENT_BTN0_LONGPUSH,		do_nop },
 	{ E_EVENT_BTN0_RELEASE,			do_nop },
-	{ E_EVENT_BTN10_PUSH,			do_i2c_write_cmd },
-	{ E_EVENT_BTN10_LONGPUSH,		do_nop },
+	{ E_EVENT_BTN10_PUSH,			do_ir_send },
+//	{ E_EVENT_BTN10_LONGPUSH,		do_i2c_write_cmd },
 	{ E_EVENT_BTN10_RELEASE,		do_nop },
-	{ E_EVENT_BTN11_PUSH,			do_i2c_eeprom_test },
+//	{ E_EVENT_BTN11_PUSH,			do_i2c_eeprom_test },
+	{ E_EVENT_BTN11_PUSH,			do_ir_recv },
 	{ E_EVENT_BTN11_LONGPUSH,		do_nop },
 	{ E_EVENT_BTN11_RELEASE,		do_nop },
 	{ E_EVENT_TO_SET_TIME,			do_nop },
@@ -338,6 +342,36 @@ static INT do_voice_test( VOID )
 	result = i2c_Write_Master( 0x2E, str, strlen((char*)str), 1 );
 
 	fprintf_P( stderr, PSTR("** result = %u **\n"), result );
+
+	return 0;
+}
+
+static INT do_ir_send( VOID )
+{
+	fprintf_P( stderr, PSTR("** IR send test **\n") );
+
+	Ir_Send();
+
+	fprintf_P( stderr, PSTR("end\n") );
+
+	return 0;
+}
+
+static INT do_ir_recv( VOID )
+{
+	fprintf_P( stderr, PSTR("** IR recv test **\n") );
+
+	Ir_Recv_Start();
+	if( Ir_Recv_WaitEnd() == FALSE ) {
+		Ir_Recv_EventHistoryDump();
+	}
+	else {
+		Ir_Frame_Dump();
+	}
+	Ir_Recv_Stop();
+
+
+	fprintf_P( stderr, PSTR("end\n") );
 
 	return 0;
 }
