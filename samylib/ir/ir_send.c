@@ -13,12 +13,13 @@
 #include <test_led.h>
 
 // WinAVR
-#include <avr/io.h>
 #include <util/delay.h>
 
 // STD-C
 #include <stdio.h>
 
+
+#define CO_TEST_LED_ENABLE
 
 typedef enum {
 	E_IR_SEND_STAT_IDLE = 0,
@@ -83,7 +84,9 @@ UINT gIr_Send_GapCntMax;
 
 static VOID ir_send_init_subcarrier( UINT fsc_hz, UINT duty )
 {
+#ifdef CO_TEST_LED_ENABLE
 	TEST_LED1_OFF();
+#endif
 	Timer0_Init( 1 );
 	Timer0_Set_Period( 1000000UL / fsc_hz );
 //	Timer0_Set_Period_Direct( 2, 49 );
@@ -100,13 +103,17 @@ static VOID ir_send_init_subcarrier( UINT fsc_hz, UINT duty )
 static VOID ir_send_start_subcarrier( VOID )
 {
 	Timer0_Start();
+#ifdef CO_TEST_LED_ENABLE
 	TEST_LED1_ON();
+#endif
 }
 
 static VOID ir_send_stop_subcarrier( VOID )
 {
 	Timer0_Stop();
+#ifdef CO_TEST_LED_ENABLE
 	TEST_LED1_OFF();
+#endif
 }
 
 static VOID ir_send_close_subcarrier( VOID )
@@ -407,7 +414,6 @@ static VOID ir_send__event_stop_aeha_last_leadout( VOID )
 
 static VOID ir_send_ovf_inthdl( VOID )
 {
-	PORTC ^= _BV(PC3);
 	gIr_Send_GapCnt++;
 
 	if( gIr_Frame.type == E_IR_FRAME_TYPE_SONY ) {
@@ -576,13 +582,12 @@ static VOID ir_send__start( const UINT fsc_hz, const UINT duty_sc, const UINT t_
 	Timer1_Start();
 
 
-#if 1
+#if 0
 	Usart_Set_Stdout();
 	printf_P( PSTR("ICR1=%u, OCR1B=%u"), ICR1, OCR1B );
 	printf_P( PSTR(", TCCR1A=0x%x, TCCR1B=0x%x\n"), TCCR1A, TCCR1B );
 	printf_P( PSTR("bit=0x%x\n"), gTimer1_ClockSelectBits );
 #endif
-
 }
 
 
@@ -633,11 +638,6 @@ VOID Ir_Send( VOID )
 
 INT Ir_Send_Start( VOID )
 {
-	// デバッグ用
-	sbi( DDRC, DDC3 );
-
-	PORTC ^= _BV(PC3);
-
 	switch( gIr_Frame.type ) {
 		case E_IR_FRAME_TYPE_SONY:
 			ir_send__start(
@@ -677,8 +677,6 @@ VOID Ir_Send_Stop( VOID )
 	ir_send_close_subcarrier();
 	Timer1_Stop();
 	Timer1_Close();
-
-	cbi( DDRC, DDC3 );
 }
 
 VOID Ir_Send_WaitEnd( VOID )
