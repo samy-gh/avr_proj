@@ -6,6 +6,9 @@
 // samylib
 #include "my_typedef.h"
 
+// WinAVR
+#include <util/delay.h>
+
 
 /****************************************************************************/
 /* 動作パラメータ宣言														*/
@@ -38,7 +41,7 @@ INT Beep_Start( T_BEEP_TYPE t_beep_type, T_SYNC_MODE t_sync_mode )
 		while( _gui_event_beep_end == 0 ) {
 			;
 		}
-		time_wait( BEEP_GAP_MSEC );
+		_delay_ms( BEEP_GAP_MSEC );
 	}
 
 	_gt_beep_type = t_beep_type;
