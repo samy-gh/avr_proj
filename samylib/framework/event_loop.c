@@ -9,6 +9,7 @@
 // samylib
 #include "my_typedef.h"
 #include "usart.h"
+#include "ir.h"
 
 // WinAVR
 #include <avr/io.h>
@@ -338,6 +339,22 @@ __inline__ static T_SYS_EVENT get_event( VOID )
 		if( t_btn_event != E_EVENT_IDLE ) {
 			return t_btn_event;
 		}
+	}
+#endif
+#ifdef CO_ENABLE_IR_RECV_EVENT
+	if( _gui_event_ir_recv_end != 0 ) {
+		_gui_event_ir_recv_end = 0;
+		return E_EVENT_IR_RECV_END;
+	}
+	if( _gui_event_ir_recv_err != 0 ) {
+		_gui_event_ir_recv_err = 0;
+		return E_EVENT_IR_RECV_ERR;
+	}
+#endif
+#ifdef CO_ENABLE_IR_SEND_EVENT
+	if( _gui_event_ir_send_end != 0 ) {
+		_gui_event_ir_send_end = 0;
+		return E_EVENT_IR_SEND_END;
 	}
 #endif
 

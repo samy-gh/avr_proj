@@ -9,6 +9,16 @@
 #include <avr/pgmspace.h>
 
 
+// フレームワーク用イベント通知
+#ifdef CO_ENABLE_IR_RECV_EVENT
+extern volatile UCHAR _gui_event_ir_recv_end;
+extern volatile UCHAR _gui_event_ir_recv_err;
+#endif
+#ifdef CO_ENABLE_IR_SEND_EVENT
+extern volatile UCHAR _gui_event_ir_send_end;
+#endif
+
+
 // フレームタイプ: E_IR_FRAME_TYPE
 typedef enum {
 	E_IR_FRAME_TYPE_UNKNOWN = 0,
@@ -95,7 +105,6 @@ extern VOID Ir_Recv_Stop( VOID );
 extern VOID Ir_Recv_Start( VOID );
 extern BOOL Ir_Recv_WaitEnd( VOID );
 
-extern VOID Ir_Send( VOID );
 extern INT Ir_Send_Start( VOID );
 extern VOID Ir_Send_Stop( VOID );
 extern VOID Ir_Send_WaitEnd( VOID );

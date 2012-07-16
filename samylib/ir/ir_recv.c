@@ -54,6 +54,14 @@ UINT volatile g_timer_count;
 
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// フレームワーク用イベント
+#ifdef CO_ENABLE_IR_RECV_EVENT
+volatile UCHAR _gui_event_ir_recv_end = 0;
+volatile UCHAR _gui_event_ir_recv_err = 0;
+#endif
+
+
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //
 // イベントログ(デバッグ用)
 //
@@ -424,6 +432,17 @@ static VOID ir_recv_timer1_compa_hdl( VOID )
 			gIr_Recv_Stat = E_IR_RECV_STAT_END;
 			break;
 	}
+
+	// Event for Frame work
+#ifdef CO_ENABLE_IR_RECV_EVENT
+	if( gIr_Recv_Stat == E_IR_RECV_STAT_END ) {
+		_gui_event_ir_recv_end = 1;
+	}
+	else
+	if( gIr_Recv_Stat == E_IR_RECV_STAT_ERR ) {
+		_gui_event_ir_recv_err = 1;
+	}
+#endif
 }
 
 static UCHAR volatile g_ir_recv_pin_last = 0;
@@ -505,6 +524,26 @@ VOID Ir_Recv_Pcint8Hdl( VOID )
 				break;
 		}
 	}
+
+	switch( gIr_Recv_Stat ) {
+		case E_IR_RECV_STAT_END:	// fall through
+		case E_IR_RECV_STAT_ERR:
+			Timer1_Stop();
+			break;
+		default:
+			break;
+	}
+
+	// Event for Frame work
+#ifdef CO_ENABLE_IR_RECV_EVENT
+	if( gIr_Recv_Stat == E_IR_RECV_STAT_END ) {
+		_gui_event_ir_recv_end = 1;
+	}
+	else
+	if( gIr_Recv_Stat == E_IR_RECV_STAT_ERR ) {
+		_gui_event_ir_recv_err = 1;
+	}
+#endif
 }
 
 

@@ -78,6 +78,13 @@ UINT gIr_Send_GapCnt;
 UINT gIr_Send_GapCntMax;
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+// フレームワーク用イベント
+#ifdef CO_ENABLE_IR_SEND_EVENT
+volatile UCHAR _gui_event_ir_send_end = 0;
+#endif
+
+
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //
 // サブキャリア制御
 //
@@ -538,6 +545,21 @@ static VOID ir_send_ovf_inthdl( VOID )
 		return;
 		// エラー
 	}
+
+#ifdef CO_ENABLE_IR_SEND_EVENT
+	switch( gIr_Send_Stat ) {
+		case E_IR_SEND_STAT_SONY_END:
+		case E_IR_SEND_STAT_AEHA_END:
+		case E_IR_SEND_STAT_NEC_END:
+		case E_IR_SEND_STAT_ERR:
+		case E_IR_SEND_STAT_IDLE:
+			_gui_event_ir_send_end = 1;
+			break;
+		default:
+			// do nothing
+			break;
+	}
+#endif
 }
 
 
@@ -593,49 +615,6 @@ static VOID ir_send__start( const UINT fsc_hz, const UINT duty_sc, const UINT t_
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // タスクAPI
-VOID Ir_Send( VOID )
-{
-
-	// デバッグ用 送信フレーム
-#if 0
-	Ir_Frame_Set(
-			E_IR_FRAME_TYPE_SONY,
-			(UCHAR*)"\x95\x07",
-			2,
-			0x10
-			);
-#endif
-#if 0
-	Ir_Frame_Set(
-			E_IR_FRAME_TYPE_SONY,
-			(UCHAR*)"\xA9\xE0",
-			2,
-			0x10
-			);
-#endif
-#if 0
-	Ir_Frame_Set(
-			E_IR_FRAME_TYPE_AEHA,
-			(UCHAR*)"\x23\xCB\x26\x01\x00\x24\x03\x0A\x00\x00\x00\x00\x8E\xD4",
-			14,
-			0x01
-			);
-#endif
-#if 1
-	Ir_Frame_Set(
-			E_IR_FRAME_TYPE_AEHA,
-			(UCHAR*)"\x55\xAA",
-			2,
-			0x01
-			);
-#endif
-
-
-	Ir_Send_Start();
-	Ir_Send_WaitEnd();
-	Ir_Send_Stop();
-}
-
 INT Ir_Send_Start( VOID )
 {
 	switch( gIr_Frame.type ) {
@@ -686,6 +665,8 @@ VOID Ir_Send_WaitEnd( VOID )
 	while( send_complete == FALSE ) {
 		switch( gIr_Send_Stat ) {
 			case E_IR_SEND_STAT_SONY_END:
+			case E_IR_SEND_STAT_AEHA_END:
+			case E_IR_SEND_STAT_NEC_END:
 			case E_IR_SEND_STAT_ERR:
 			case E_IR_SEND_STAT_IDLE:
 				send_complete = TRUE;
