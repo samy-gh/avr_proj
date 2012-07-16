@@ -102,13 +102,15 @@ usbMsgLen_t usbFunctionSetup( uchar data[8] )
 		case USBRQ_HID_GET_REPORT:
 			g_Report.id[0] = rq->wValue.bytes[0];    /* store report ID */
 			usbMsgPtr = g_Report.id;	/* 応答フェーズ用データを設定 */
+
 #if 0
-#if	INCLUDE_POLL_CMD 	// ReportID:4  POLLING PORTを実装する.
-			if(	g_Report.id[0]==ID4) {
-				g_Report.buf[0] = *( (uchar *)page_addr );
+			Usart_Set_Stdout();
+			printf_P( PSTR("recv: id=%u len=%u\n"), g_Report.id[0], rq->wLength.word );
+#endif
+			if( g_Report.id[0] == 1 ) {
+
 			}
-#endif
-#endif
+//			return 0;
 			return rq->wLength.word;
 
 		case USBRQ_HID_SET_REPORT:
