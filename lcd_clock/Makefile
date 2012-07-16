@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 28-Apr-2012.
+# Last Change: 16-Jul-2012.
 #
 
 ##
@@ -50,6 +50,10 @@ CFLAGS+= -DE_TIMER_SYSTEM_MAX=3
 CFLAGS+= -DD_USART_TX_BUFFER_SIZE=0
 # I2C slave readイベント有効
 CFLAGS+= -DCO_ENABLE_I2C_SLAVE_READ
+# IR 受信イベント有効
+CFLAGS+= -DCO_ENABLE_IR_RECV_EVENT
+# IR 送信イベント有効
+CFLAGS+= -DCO_ENABLE_IR_SEND_EVENT
 
 
 ##

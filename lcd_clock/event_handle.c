@@ -45,8 +45,11 @@ static INT do_i2c_addr2( VOID );
 static INT do_timer( VOID );
 static INT do_timer_stop( VOID );
 static INT do_voice_test( VOID );
-static INT do_ir_send( VOID );
-static INT do_ir_recv( VOID );
+static INT do_ir_send_start( VOID );
+static INT do_ir_send_end( VOID );
+static INT do_ir_recv_start( VOID );
+static INT do_ir_recv_end( VOID );
+static INT do_ir_recv_err( VOID );
 
 /* システムステータス種類 */
 typedef enum {
@@ -84,13 +87,16 @@ T_SYS_EVENT_TBL gt_sys_event_tbl_idle[] = {
 	{ E_EVENT_BTN0_PUSH,			do_nop },
 	{ E_EVENT_BTN0_LONGPUSH,		do_nop },
 	{ E_EVENT_BTN0_RELEASE,			do_nop },
-	{ E_EVENT_BTN10_PUSH,			do_ir_send },
+	{ E_EVENT_BTN10_PUSH,			do_ir_send_start },
 //	{ E_EVENT_BTN10_LONGPUSH,		do_i2c_write_cmd },
 	{ E_EVENT_BTN10_RELEASE,		do_nop },
 //	{ E_EVENT_BTN11_PUSH,			do_i2c_eeprom_test },
-	{ E_EVENT_BTN11_PUSH,			do_ir_recv },
+	{ E_EVENT_BTN11_PUSH,			do_ir_recv_start },
 	{ E_EVENT_BTN11_LONGPUSH,		do_nop },
 	{ E_EVENT_BTN11_RELEASE,		do_nop },
+	{ E_EVENT_IR_RECV_END,			do_ir_recv_end },
+	{ E_EVENT_IR_RECV_ERR,			do_ir_recv_err },
+	{ E_EVENT_IR_SEND_END,			do_ir_send_end },
 	{ E_EVENT_TO_SET_TIME,			do_nop },
 	{ E_EVENT_SW_ADJ_PUSH,			do_timer_stop },
 	{ E_EVENT_BEEP_END,				do_nop },
@@ -346,22 +352,77 @@ static INT do_voice_test( VOID )
 	return 0;
 }
 
-static INT do_ir_send( VOID )
+static INT do_ir_send_start( VOID )
 {
 	fprintf_P( stderr, PSTR("** IR send test **\n") );
 
-	Ir_Send();
+#if 1
+//	Lcd_Close( 0 );
+
+	// デバッグ用 送信フレーム
+#if 0
+	Ir_Frame_Set(
+			E_IR_FRAME_TYPE_SONY,
+			(UCHAR*)"\x95\x07",
+			2,
+			0x10
+			);
+#endif
+#if 1
+	Ir_Frame_Set(
+			E_IR_FRAME_TYPE_SONY,
+			(UCHAR*)"\xA9\xE0",
+			2,
+			0x10
+			);
+#endif
+#if 0
+	Ir_Frame_Set(
+			E_IR_FRAME_TYPE_AEHA,
+			(UCHAR*)"\x23\xCB\x26\x01\x00\x24\x03\x0A\x00\x00\x00\x00\x8E\xD4",
+			14,
+			0x01
+			);
+#endif
+#if 0
+	Ir_Frame_Set(
+			E_IR_FRAME_TYPE_AEHA,
+			(UCHAR*)"\x55\xAA",
+			2,
+			0x01
+			);
+#endif
+
+
+	Ir_Send_Start();
+//	Ir_Send_WaitEnd();
+//	Ir_Send_Stop();
+//	Lcd_Open();
+#endif
 
 	fprintf_P( stderr, PSTR("end\n") );
 
 	return 0;
 }
 
-static INT do_ir_recv( VOID )
+static INT do_ir_send_end( VOID )
+{
+	fprintf_P( stderr, PSTR("** IR send end event **\n") );
+
+	Ir_Send_Stop();
+
+	fprintf_P( stderr, PSTR("end\n") );
+
+	return 0;
+}
+
+static INT do_ir_recv_start( VOID )
 {
 	fprintf_P( stderr, PSTR("** IR recv test **\n") );
 
+	fprintf_P( stderr, PSTR("recv event %u %u\n"), _gui_event_ir_recv_end, _gui_event_ir_recv_err );
 	Ir_Recv_Start();
+#if 0
 	if( Ir_Recv_WaitEnd() == FALSE ) {
 		Ir_Recv_EventHistoryDump();
 	}
@@ -369,7 +430,31 @@ static INT do_ir_recv( VOID )
 		Ir_Frame_Dump();
 	}
 	Ir_Recv_Stop();
+#endif
 
+	fprintf_P( stderr, PSTR("end\n") );
+
+	return 0;
+}
+
+static INT do_ir_recv_end( VOID )
+{
+	fprintf_P( stderr, PSTR("** IR recv end **\n") );
+
+	Ir_Frame_Dump();
+	Ir_Recv_Stop();
+
+	fprintf_P( stderr, PSTR("end\n") );
+
+	return 0;
+}
+
+static INT do_ir_recv_err( VOID )
+{
+	fprintf_P( stderr, PSTR("** IR recv err **\n") );
+
+	Ir_Recv_EventHistoryDump();
+	Ir_Recv_Stop();
 
 	fprintf_P( stderr, PSTR("end\n") );
 
