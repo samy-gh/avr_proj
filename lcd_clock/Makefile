@@ -26,8 +26,10 @@ TARGET=main-$(OSC).hex
 CSRCS+=main.c
 CSRCS+=framework_hal.c
 CSRCS+=event_handle.c
-#CSRCS+=usbdrv/usbdrv.c
-#ASMSRCS+=usbdrv/usbdrvasm.S
+CSRCS+=usb.c
+
+CSRCS+=usbdrv/usbdrv.c
+ASMSRCS+=usbdrv/usbdrvasm.S
 
 
 ##

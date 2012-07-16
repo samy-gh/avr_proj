@@ -1,5 +1,6 @@
 
 // プロジェクト固有
+#include "usb.h"
 #include "framework_hal.h"
 
 // samylib
@@ -37,11 +38,14 @@ VOID setup( VOID )
 	power_all_disable();
 #endif
 
+	Usb_Init();
+
 	// USART初期化
 	Usart_Init( 38400 );
 
 	// LCD初期化
 	Lcd_Init();
+	Lcd_Close( 0 );
 
 	framework_init();
 
@@ -49,6 +53,7 @@ VOID setup( VOID )
 	TEST_LED2_OFF();
 	TEST_LED3_OFF();
 
+	Usb_Connect( 300 );
 
 	// 割り込み許可
 	sei();

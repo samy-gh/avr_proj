@@ -15,6 +15,9 @@
 #include <i2c.h>
 #include <ir.h>
 
+// usbdrv
+#include <usbdrv/usbdrv.h>
+
 // WinAVR
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -175,6 +178,8 @@ UINT gui_timer_param_num = E_TIMER_MAX;
 /*----------------------------------------------*/
 static INT do_nop( VOID )
 {
+	usbPoll();	/* 10msec以内(50msec以内？)にコール */
+
 	return 0;
 }
 
