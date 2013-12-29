@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 16-Mar-2011.
+# Last Change: 29-Dec-2013.
 #
 
 ##
@@ -24,6 +24,7 @@ FUSE_EX=0xFF
 ##
 TARGET=main-$(OSC).hex
 CSRCS+=main.c
+CSRCS+=ir_ctrl.c
 CSRCS+=usbdrv/usbdrv.c
 ASMSRCS+=usbdrv/usbdrvasm.S
 

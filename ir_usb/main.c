@@ -1,5 +1,7 @@
 
 // プロジェクト固有
+#include "custom.h"
+#include "ir_ctrl.h"
 
 // usbdrv
 #include <usbdrv/usbdrv.h>
@@ -10,6 +12,7 @@
 #include <lcd_hd44780.h>
 #include <test_led.h>
 #include <test_sw.h>
+#include <ir.h>
 
 // WinAVR
 #include <avr/io.h>
@@ -128,7 +131,7 @@ usbMsgLen_t usbFunctionSetup( uchar data[8] )
 		case USBRQ_HID_SET_REPORT:
 			currentPosition = 0;                // initialize position index
 			bytesRemaining = rq->wLength.word;  // store the amount of data requested
-			if(	bytesRemaining > sizeof(g_Report)) { // limit to buffer size
+			if( bytesRemaining > sizeof(g_Report)) { // limit to buffer size
 				bytesRemaining = sizeof(g_Report);
 			}
 			return USB_NO_MSG;						// tell driver to use usbFunctionWrite()
@@ -178,6 +181,8 @@ VOID usart_poll( VOID )
 // Pin Change Interrupt処理
 SIGNAL(PCINT1_vect)
 {
+	IR_RECV_PCINT8_HDL();
+
 	Test_Sw_Sw1Pcint1Hdl();
 	Test_Sw_Sw2Pcint1Hdl();
 
@@ -217,7 +222,7 @@ VOID setup( VOID )
 	TEST_SW2_ENABLE();
 
 
-	TEST_LED1_ON();
+	TEST_LED1_OFF();
 	TEST_LED2_OFF();
 	TEST_LED3_OFF();
 
@@ -239,12 +244,13 @@ VOID print_banner( VOID )
 	// バナー表示
 	//
 	// ローカル標準出力関数のテスト
-	prog_char* hello_str = PSTR("HIDlib FW sample");
+	prog_char* hello_str = PSTR("IR-USB");
 	Usart_Set_Stdout();
 	Mystdout_PgmPuts( hello_str );
 	Mystdout_Putc( '\n' );
 	Lcd_Set_Stdout();
 	Mystdout_PgmPuts( hello_str );
+	Lcd_Close( TRUE );
 }
 
 
@@ -284,6 +290,7 @@ VOID main( VOID )
 				Usart_Set_Stdout();
 				puts_P( PSTR("SW1 on") );
 				TEST_LED2_ON();
+				Ir_Ctrl_Start_Recv_KeyEventHdl();	// 受信開始
 				break;
 			case E_TEST_SW_EVENT_OFF:
 				Usart_Set_Stdout();
@@ -299,6 +306,7 @@ VOID main( VOID )
 				Usart_Set_Stdout();
 				puts_P( PSTR("SW2 on") );
 				TEST_LED3_ON();
+				Ir_Ctrl_Start_Send_KeyEventHdl();	// 送信開始
 				break;
 			case E_TEST_SW_EVENT_OFF:
 				Usart_Set_Stdout();
@@ -308,6 +316,10 @@ VOID main( VOID )
 			default:
 				break;
 		}
+
+
+		// IR受信イベント監視
+		Ir_Ctrl_Recv_EventHdl();
 
 
 #ifdef CO_SLEEP_ENABLE
