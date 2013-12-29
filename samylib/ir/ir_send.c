@@ -19,7 +19,9 @@
 #include <stdio.h>
 
 
+#ifndef CO_TEST_LED_ENABLE
 #define CO_TEST_LED_ENABLE
+#endif
 
 typedef enum {
 	E_IR_SEND_STAT_IDLE = 0,
@@ -61,6 +63,19 @@ typedef enum {
 	E_IR_SEND_STAT_AEHA_GAP,			// フレーム間ギャップ
 	E_IR_SEND_STAT_AEHA_LAST_LEADOUT,	// Leadout部送信中
 	E_IR_SEND_STAT_AEHA_END,			// 送信完了待ち
+	// Toshiba
+	E_IR_SEND_STAT_TOSHIBA_LEADER_HI_0,	// Leader HI部送信中(1/8)
+	E_IR_SEND_STAT_TOSHIBA_LEADER_HI_1,	// Leader HI部送信中(2～8/8)
+	E_IR_SEND_STAT_TOSHIBA_LEADER_LO,	// Leader LO部送信中(1～8/8)
+	E_IR_SEND_STAT_TOSHIBA_DATA_HI,		// データ HI部送信中
+	E_IR_SEND_STAT_TOSHIBA_DATA_0_LO_0,	// データ'0' LO部送信中
+	E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_0,	// データ'1' LO部送信中 (1/3)
+	E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_1,	// データ'1' LO部送信中 (2/3)
+	E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_2,	// データ'1' LO部送信中 (3/3)
+	E_IR_SEND_STAT_TOSHIBA_LEADOUT,		// Leadout部送信中 (次フレームあり)
+	E_IR_SEND_STAT_TOSHIBA_GAP,			// フレーム間ギャップ
+	E_IR_SEND_STAT_TOSHIBA_LAST_LEADOUT,	// Leadout部送信中
+	E_IR_SEND_STAT_TOSHIBA_END,			// 送信完了待ち
 	// その他
 	E_IR_SEND_STAT_ERR,					// エラー発生
 	E_IR_SEND_STAT_MAX
@@ -417,6 +432,115 @@ static VOID ir_send__event_stop_aeha_last_leadout( VOID )
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 //
+// イベントハンドラ(Toshiba)
+//
+
+static VOID ir_send__event_send_toshiba_leader_hi_1( VOID )
+{
+	gIr_Send_LeaderCount = 7;	// Leader-Hi is 8T
+	gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_LEADER_HI_1;
+}
+
+static VOID ir_send__event_send_toshiba_leader_lo( VOID )
+{
+	gIr_Send_LeaderCount--;
+	if( gIr_Send_LeaderCount == 0 ) {
+		ir_send_stop_subcarrier();	// 発振停止
+		gIr_Send_LeaderCount = 8;	// Leader-Hi is 8T
+		gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_LEADER_LO;
+	}
+}
+
+static VOID ir_send__event_send_toshiba_data_hi_0( VOID )
+{
+	gIr_Send_LeaderCount--;
+	if( gIr_Send_LeaderCount == 0 ) {
+		ir_send_start_subcarrier();	// 発振開始
+		gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_DATA_HI;
+	}
+}
+
+static VOID ir_send__event_send_toshiba_data_lo( VOID )
+{
+	ir_send_stop_subcarrier();	// 発振停止
+
+	// 送信中のビット0 or 1を判定
+	gIr_Send_CurrBit = ((gIr_Frame.data[gIr_Send_ByteIdx] & gIr_Send_BitMask) != 0)?(1):(0);
+
+	if( gIr_Send_BitMask == 0x01 ) {
+		gIr_Send_ByteIdx++;
+		gIr_Send_BitMask = 0x80;
+	}
+	else {
+		gIr_Send_BitMask >>= 1;
+	}
+
+	// 送信中のビット0 or 1を判定し状態遷移
+	if( gIr_Send_CurrBit ) {
+		gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_0;
+	}
+	else {
+		gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_DATA_0_LO_0;
+	}
+}
+
+static VOID ir_send__event_send_toshiba_data_hi_1( VOID )
+{
+	ir_send_start_subcarrier();	// 発振開始
+
+	// 終了判定
+	if( (gIr_Send_ByteIdx == gIr_Frame.byte_idx)
+	 && (gIr_Send_BitMask == gIr_Frame.bit_mask)
+	 ) {
+		// 1フレーム終了
+		gIr_Send_LoopCnt++;
+		if( gIr_Send_LoopCnt >= gIr_Send_LoopMax ) {
+			// フレーム繰り返し終了
+			gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_LAST_LEADOUT;
+			return;
+		}
+
+		gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_LEADOUT;
+		return;
+	}
+	gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_DATA_HI;
+}
+
+static VOID ir_send__event_send_toshiba_gap_0( VOID )
+{
+	ir_send_stop_subcarrier();	// 発振停止
+	gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_GAP;
+
+	if( (gIr_Send_GapCnt +9) > gIr_Send_GapCntMax ) {
+		gIr_Send_GapCntMax = gIr_Send_GapCnt +9;
+	}
+}
+
+static VOID ir_send__event_send_toshiba_gap_1( VOID )
+{
+	if( gIr_Send_GapCnt >= gIr_Send_GapCntMax ) {
+		gIr_Send_GapCnt = 0;
+
+		// 次フレームのLedaer送信開始
+		ir_send_start_subcarrier();
+
+		gIr_Send_ByteIdx = 0;
+		gIr_Send_BitMask = 0x80;
+
+		gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_LEADER_HI_0;
+	}
+}
+
+static VOID ir_send__event_stop_toshiba_last_leadout( VOID )
+{
+	ir_send_stop_subcarrier();	// 発振停止
+	ir_send_close_subcarrier();
+	gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_END;
+}
+
+
+// =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+//
 // 送信制御タイマハンドラ
 
 static VOID ir_send_ovf_inthdl( VOID )
@@ -540,6 +664,46 @@ static VOID ir_send_ovf_inthdl( VOID )
 				return;
 		}
 	}
+	else if( gIr_Frame.type == E_IR_FRAME_TYPE_TOSHIBA ) {
+		switch( gIr_Send_Stat ) {
+			case E_IR_SEND_STAT_TOSHIBA_LEADER_HI_0:
+				ir_send__event_send_toshiba_leader_hi_1();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_LEADER_HI_1:
+				ir_send__event_send_toshiba_leader_lo();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_LEADER_LO:
+				ir_send__event_send_toshiba_data_hi_0();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_DATA_HI:
+				ir_send__event_send_toshiba_data_lo();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_DATA_0_LO_0:	// data bit'0'
+				ir_send__event_send_toshiba_data_hi_1();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_0:	// data bit'1' 1 of 3
+				gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_1;
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_1:	// data bit'1' 2 of 3
+				gIr_Send_Stat = E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_2;
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_DATA_1_LO_2:	// data bit'1' 3 of 3
+				ir_send__event_send_toshiba_data_hi_1();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_LEADOUT:
+				ir_send__event_send_toshiba_gap_0();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_GAP:
+				ir_send__event_send_toshiba_gap_1();
+				break;
+			case E_IR_SEND_STAT_TOSHIBA_LAST_LEADOUT:
+				ir_send__event_stop_toshiba_last_leadout();
+				break;
+			default:
+				gIr_Send_Stat = E_IR_SEND_STAT_ERR;
+				return;
+		}
+	}
 	else {
 		gIr_Send_Stat = E_IR_SEND_STAT_ERR;
 		return;
@@ -578,23 +742,30 @@ static VOID ir_send__start( const UINT fsc_hz, const UINT duty_sc, const UINT t_
 	Timer1_Enable_CompaIntr( ir_send_ovf_inthdl );
 
 	gIr_Send_LoopCnt = 0;
-	gIr_Send_LoopMax = 3;	// フレーム送信回数
 	gIr_Send_ByteIdx = 0;
 	gIr_Send_BitMask = 0x80;
 	gIr_Send_GapCnt = 0;
 	switch( gIr_Frame.type ) {
 		case E_IR_FRAME_TYPE_SONY:
 			gIr_Send_GapCntMax = 75;	// Frame length=45msec
+			gIr_Send_LoopMax = 3;		// フレーム送信回数
 			break;
 		case E_IR_FRAME_TYPE_NEC:
 			gIr_Send_GapCntMax = 192;	// Frame length=108msec
+			gIr_Send_LoopMax = 3;		// フレーム送信回数
 			break;
 		case E_IR_FRAME_TYPE_AEHA:
 			gIr_Send_GapCntMax = 305;	// Frame length=130msec
+			gIr_Send_LoopMax = 3;		// フレーム送信回数
+			break;
+		case E_IR_FRAME_TYPE_TOSHIBA:
+			gIr_Send_GapCntMax = 9;		// Frame length=4.4msec
+			gIr_Send_LoopMax = 2;		// フレーム送信回数
 			break;
 		default:
 			// fail safe
 			gIr_Send_GapCntMax = 305;	// Frame length=130msec
+			gIr_Send_LoopMax = 3;		// フレーム送信回数
 	}
 
 
@@ -642,6 +813,14 @@ INT Ir_Send_Start( VOID )
 					E_IR_SEND_STAT_AEHA_LEADER_HI_0
 					);
 			break;
+		case E_IR_FRAME_TYPE_TOSHIBA:
+			ir_send__start(
+					38000,	// サブキャリア周波数 33～40kHz(typ. 38kHz)
+					3333,	// サブキャリアDuty 33% (1/3)
+					570,	// フレーム単位時間 570usec
+					E_IR_SEND_STAT_TOSHIBA_LEADER_HI_0
+					);
+			break;
 		default:
 			return -1;
 			break;
@@ -661,19 +840,25 @@ VOID Ir_Send_Stop( VOID )
 VOID Ir_Send_WaitEnd( VOID )
 {
 	BOOL send_complete = FALSE;
+	UINT wait_cnt = 0;
 
 	while( send_complete == FALSE ) {
 		switch( gIr_Send_Stat ) {
 			case E_IR_SEND_STAT_SONY_END:
 			case E_IR_SEND_STAT_AEHA_END:
 			case E_IR_SEND_STAT_NEC_END:
+			case E_IR_SEND_STAT_TOSHIBA_END:
 			case E_IR_SEND_STAT_ERR:
 			case E_IR_SEND_STAT_IDLE:
 				send_complete = TRUE;
 				break;
 			default:
-				printf_P( PSTR("stat=%u\n"), gIr_Send_Stat );
-				_delay_ms( 1000 );
+				wait_cnt++;
+				_delay_ms( 100 );
+				if( wait_cnt >= 50 ) {	// 5sec
+					printf_P( PSTR("timeout. stat=%u\n"), gIr_Send_Stat );
+					return;
+				}
 				break;
 		}
 	}
