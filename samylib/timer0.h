@@ -20,7 +20,7 @@ extern VOID Timer0_Start( VOID );
 extern VOID Timer0_Stop( VOID );
 extern VOID Timer0_Close( VOID );		// Enable Power-save
 extern VOID Timer0_Restart( VOID );
-extern VOID Timer0_Set_PwmPin( UINT duty );
+extern BOOL Timer0_Set_PwmPin( UINT duty );
 extern VOID Timer0_Unset_PwmPin( VOID );
 extern VOID Timer0_Enable_OvfIntr( VOID (*isr)( VOID ) );
 extern VOID Timer0_Enable_CompbIntr( VOID (*isr)( VOID ) );
