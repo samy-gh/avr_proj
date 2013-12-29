@@ -23,6 +23,10 @@
 #include <stdio.h>
 
 
+
+#define D_IR_EEP_ADDR		0
+
+
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // 割り込みハンドラ
 
@@ -213,13 +217,15 @@ VOID main( VOID )
 				Ir_Frame_Set( E_IR_FRAME_TYPE_NEC, frame, sizeof(frame), 1 );
 			}
 #endif
-#if 1
+#if 0
 			{	// 東芝エアコン
 				UCHAR frame[] = { 0xF2, 0x0D, 0x04, 0xFB, 0x09, 0x00, 0x83, 0x00, 0x04, 0x8E };
 				Ir_Frame_Set( E_IR_FRAME_TYPE_TOSHIBA, frame, sizeof(frame), 1 );
 			}
 #endif
+			Ir_Read_Eeprom( D_IR_EEP_ADDR );
 			Ir_Send_Start();
+			Ir_Frame_Dump();
 			Ir_Send_WaitEnd();
 			Test_Sw_Is_Sw2Chg();
 			printf_P( PSTR("\nsend comoplete\n") );
@@ -238,6 +244,7 @@ VOID main( VOID )
 				break;
 			case E_IR_RECV_STAT_END:
 				Ir_Recv_Stop();
+				Ir_Write_Eeprom( D_IR_EEP_ADDR );
 				Usart_Set_Stdout();
 				printf_P( PSTR("\nrecv success\n") );
 				Ir_Frame_Dump();
