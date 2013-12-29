@@ -202,15 +202,21 @@ VOID main( VOID )
 			Usart_Set_Stdout();
 			printf_P( PSTR("\nsend begin\n") );
 #if 0
-			{
+			{	// SONY CDチェンジャー
 				UCHAR frame[] = { 0xA9, 0x14 };
 				Ir_Frame_Set( E_IR_FRAME_TYPE_SONY, frame, sizeof(frame), 2 );
 			}
 #endif
-#if 1
-			{
+#if 0
+			{	// 東芝TV
 				UCHAR frame[] = { 0x02, 0xFD, 0x48, 0xB7 };
 				Ir_Frame_Set( E_IR_FRAME_TYPE_NEC, frame, sizeof(frame), 1 );
+			}
+#endif
+#if 1
+			{	// 東芝エアコン
+				UCHAR frame[] = { 0xF2, 0x0D, 0x04, 0xFB, 0x09, 0x00, 0x83, 0x00, 0x04, 0x8E };
+				Ir_Frame_Set( E_IR_FRAME_TYPE_TOSHIBA, frame, sizeof(frame), 1 );
 			}
 #endif
 			Ir_Send_Start();
