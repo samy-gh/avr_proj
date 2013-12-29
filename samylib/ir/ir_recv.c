@@ -128,11 +128,13 @@ static UINT ir_recv_calc_usec( VOID )
 	return D_TIMER1_PERIOD_USEC * g_timer_count / gTimer1_PwmPeriod;
 }
 
+// LEADER Hi開始イベント
 static VOID ir_recv__event_leader_1( VOID )
 {
 	gIr_Recv_Stat = E_IR_RECV_STAT_LEADER1_MEASURE;
 }
 
+// LEADER Lo開始イベント
 static VOID ir_recv__event_leader_0( VOID )
 {
 	UINT usec = ir_recv_calc_usec();
@@ -146,6 +148,10 @@ static VOID ir_recv__event_leader_0( VOID )
 	if( (8800 < usec) && (usec < 9200) ) {	// 8992 usec
 		// NECフォーマットのリーダー1
 		gIr_Recv_Stat = E_IR_RECV_STAT_LEADER0_NEC_MEASURE;
+	}
+	else if( (4000 < usec) && (usec < 5000) ) {
+		// AEHAフォーマットのリーダー1
+		gIr_Recv_Stat = E_IR_RECV_STAT_LEADER0_TOSHIBA_MEASURE;
 	}
 	else if( (2700 < usec) && (usec < 4000) ) {
 		// AEHAフォーマットのリーダー1
@@ -199,6 +205,28 @@ static VOID ir_recv__event_leader_0_aeha( VOID )
 		// AEHAフォーマットのリーダー0
 		gIr_Recv_Stat = E_IR_RECV_STAT_AEHA_FRAME_WAIT;
 		Ir_Frame_Set_Type( E_IR_FRAME_TYPE_AEHA );
+	}
+	else {
+		gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+		gIr_Recv_Err = E_IR_RECV_ERR_UNKNOWN_LEADER;
+		g_ir_timer_usec_last = usec;
+	}
+}
+
+static VOID ir_recv__event_leader_0_toshiba( VOID )
+{
+	UINT usec = ir_recv_calc_usec();
+
+	if( usec == 0 ) {
+		gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+		gIr_Recv_Err = E_IR_RECV_ERR_LEADER0_TOSHIBA_MEASURE;
+		return;
+	}
+
+	if( (4000 < usec) && (usec < 5000) ) {	// 4000-5000 usec
+		// Toshibaフォーマットのリーダー0
+		gIr_Recv_Stat = E_IR_RECV_STAT_TOSHIBA_FRAME_WAIT;
+		Ir_Frame_Set_Type( E_IR_FRAME_TYPE_TOSHIBA );
 	}
 	else {
 		gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
@@ -381,6 +409,68 @@ static VOID ir_recv__event_aeha_frame_data_1( VOID )
 	}
 }
 
+static VOID ir_recv__event_toshiba_frame_data_0( VOID )
+{
+	UINT usec = ir_recv_calc_usec();
+
+	if( usec == 0 ) {
+		gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+		gIr_Recv_Err = E_IR_RECV_ERR_FRAME_DATA_1_NULL;
+		g_ir_timer_usec_last = usec;
+		return;
+	}
+
+	if( (400 < usec) && (usec < 700) ) {	// 400-700 usec (Typ. 458)
+		// Toshibaフォーマットのフレーム開始
+		gIr_Recv_Stat = E_IR_RECV_STAT_TOSHIBA_FRAME_MEASURE;
+	}
+	else {
+		gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+		gIr_Recv_Err = E_IR_RECV_ERR_FRAME_DATA_1_UNKNOWN_LENGTH;
+		g_ir_timer_usec_last = usec;
+	}
+}
+
+static VOID ir_recv__event_toshiba_frame_data_1( VOID )
+{
+	UINT usec = ir_recv_calc_usec();
+
+	if( usec == 0 ) {
+		gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+		gIr_Recv_Err = E_IR_RECV_ERR_FRAME_DATA_0_NULL;
+		return;
+	}
+
+	if( (400 < usec) && (usec < 700) ) {	// 400-700 usec (Typ.458)
+		// BIT=0
+		if( !Ir_Frame_Store_Bit( 0 ) ) {
+			gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+			gIr_Recv_Err = E_IR_RECV_ERR_BUF_OVERFLOW;
+			return;
+		}
+		gIr_Recv_Stat = E_IR_RECV_STAT_TOSHIBA_FRAME_WAIT;
+	}
+	else if( (1400 < usec) && (usec < 1700) ) {	// 1400-1700 usec (Typ.1560)
+		// BIT=1
+		if( !Ir_Frame_Store_Bit( 1 ) ) {
+			gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+			gIr_Recv_Err = E_IR_RECV_ERR_BUF_OVERFLOW;
+			return;
+		}
+		gIr_Recv_Stat = E_IR_RECV_STAT_TOSHIBA_FRAME_WAIT;
+	}
+	else if( (4000 < usec) && (usec < 5500) ) {	// 4000-5500 usec
+		gIr_Recv_Stat = E_IR_RECV_STAT_END;
+		return;
+	}
+	else {
+		gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+		gIr_Recv_Err = E_IR_RECV_ERR_FRAME_DATA_0_UNKNOWN_LENGTH;
+		g_ir_timer_usec_last = usec;
+		return;
+	}
+}
+
 
 // Timer1満了割り込み
 static VOID ir_recv_timer1_compa_hdl( VOID )
@@ -431,6 +521,13 @@ static VOID ir_recv_timer1_compa_hdl( VOID )
 		case E_IR_RECV_STAT_AEHA_FRAME_MEASURE:
 			gIr_Recv_Stat = E_IR_RECV_STAT_END;
 			break;
+		case E_IR_RECV_STAT_TOSHIBA_FRAME_WAIT:
+			gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
+			gIr_Recv_Err = E_IR_RECV_ERR_TOSHIBA_FRAME_WAIT_TO;
+			break;
+		case E_IR_RECV_STAT_TOSHIBA_FRAME_MEASURE:
+			gIr_Recv_Stat = E_IR_RECV_STAT_END;
+			break;
 	}
 
 	// Event for Frame work
@@ -474,7 +571,7 @@ VOID Ir_Recv_Pcint8Hdl( VOID )
 				gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
 				gIr_Recv_Err = E_IR_RECV_ERR_ILLEGAL_STAT;
 				break;
-			case E_IR_RECV_STAT_LEADER1_WAIT:
+			case E_IR_RECV_STAT_LEADER1_WAIT:	// LEADER 1(Lo)開始イベント
 				ir_recv__event_leader_1();
 				break;
 			case E_IR_RECV_STAT_LEADER0_NEC_MEASURE:
@@ -482,6 +579,9 @@ VOID Ir_Recv_Pcint8Hdl( VOID )
 				break;
 			case E_IR_RECV_STAT_LEADER0_AEHA_MEASURE:
 				ir_recv__event_leader_0_aeha();
+				break;
+			case E_IR_RECV_STAT_LEADER0_TOSHIBA_MEASURE:	// LEADER Tosiba 1(Lo)幅測定
+				ir_recv__event_leader_0_toshiba();
 				break;
 			case E_IR_RECV_STAT_SONY_FRAME_WAIT:
 				ir_recv__event_sony_frame_data_1();
@@ -491,6 +591,9 @@ VOID Ir_Recv_Pcint8Hdl( VOID )
 				break;
 			case E_IR_RECV_STAT_AEHA_FRAME_MEASURE:
 				ir_recv__event_aeha_frame_data_1();
+				break;
+			case E_IR_RECV_STAT_TOSHIBA_FRAME_MEASURE:
+				ir_recv__event_toshiba_frame_data_1();
 				break;
 			case E_IR_RECV_STAT_IDLE:	// fall through
 			case E_IR_RECV_STAT_END:	// fall through
@@ -506,7 +609,7 @@ VOID Ir_Recv_Pcint8Hdl( VOID )
 				gIr_Recv_Stat = E_IR_RECV_STAT_ERR;
 				gIr_Recv_Err = E_IR_RECV_ERR_ILLEGAL_STAT;
 				break;
-			case E_IR_RECV_STAT_LEADER1_MEASURE:
+			case E_IR_RECV_STAT_LEADER1_MEASURE:	// LEADER 1(Lo)開始イベント
 				ir_recv__event_leader_0();
 				break;
 			case E_IR_RECV_STAT_SONY_FRAME_MEASURE:
@@ -517,6 +620,9 @@ VOID Ir_Recv_Pcint8Hdl( VOID )
 				break;
 			case E_IR_RECV_STAT_AEHA_FRAME_WAIT:
 				ir_recv__event_aeha_frame_data_0();
+				break;
+			case E_IR_RECV_STAT_TOSHIBA_FRAME_WAIT:
+				ir_recv__event_toshiba_frame_data_0();
 				break;
 			case E_IR_RECV_STAT_IDLE:	// fall through
 			case E_IR_RECV_STAT_END:	// fall through
