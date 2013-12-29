@@ -24,8 +24,9 @@
 #endif
 
 typedef enum {
+	// [0]
 	E_IR_SEND_STAT_IDLE = 0,
-	// SONY
+	// [1-11] SONY
 	E_IR_SEND_STAT_SONY_LEADER_0,		// Leader送信中(1/4)
 	E_IR_SEND_STAT_SONY_LEADER_1,		// Leader送信中(2/4)
 	E_IR_SEND_STAT_SONY_LEADER_2,		// Leader送信中(3/4)
@@ -37,7 +38,7 @@ typedef enum {
 	E_IR_SEND_STAT_SONY_DATA_1_HI_1,	// データ'1' HI部送信中 (2/2)
 	E_IR_SEND_STAT_SONY_GAP,			// フレーム間ギャップ
 	E_IR_SEND_STAT_SONY_END,			// 送信完了待ち
-	// NEC
+	// [12-23] NEC
 	E_IR_SEND_STAT_NEC_LEADER_HI_0,		// Leader HI部送信中(1/16)
 	E_IR_SEND_STAT_NEC_LEADER_HI_1,		// Leader HI部送信中(2～16/16)
 	E_IR_SEND_STAT_NEC_LEADER_LO,		// Leader LO部送信中(1～8/8)
@@ -50,7 +51,7 @@ typedef enum {
 	E_IR_SEND_STAT_NEC_GAP,				// フレーム間ギャップ
 	E_IR_SEND_STAT_NEC_LAST_LEADOUT,	// Leadout部送信中
 	E_IR_SEND_STAT_NEC_END,				// 送信完了待ち
-	// AEHA
+	// [24-35] AEHA
 	E_IR_SEND_STAT_AEHA_LEADER_HI_0,	// Leader HI部送信中(1/8)
 	E_IR_SEND_STAT_AEHA_LEADER_HI_1,	// Leader HI部送信中(2～8/8)
 	E_IR_SEND_STAT_AEHA_LEADER_LO,		// Leader LO部送信中(1～4/4)
@@ -63,7 +64,7 @@ typedef enum {
 	E_IR_SEND_STAT_AEHA_GAP,			// フレーム間ギャップ
 	E_IR_SEND_STAT_AEHA_LAST_LEADOUT,	// Leadout部送信中
 	E_IR_SEND_STAT_AEHA_END,			// 送信完了待ち
-	// Toshiba
+	// [36-47] Toshiba
 	E_IR_SEND_STAT_TOSHIBA_LEADER_HI_0,	// Leader HI部送信中(1/8)
 	E_IR_SEND_STAT_TOSHIBA_LEADER_HI_1,	// Leader HI部送信中(2～8/8)
 	E_IR_SEND_STAT_TOSHIBA_LEADER_LO,	// Leader LO部送信中(1～8/8)
@@ -76,8 +77,10 @@ typedef enum {
 	E_IR_SEND_STAT_TOSHIBA_GAP,			// フレーム間ギャップ
 	E_IR_SEND_STAT_TOSHIBA_LAST_LEADOUT,	// Leadout部送信中
 	E_IR_SEND_STAT_TOSHIBA_END,			// 送信完了待ち
-	// その他
+	// [48-51] その他
 	E_IR_SEND_STAT_ERR,					// エラー発生
+	E_IR_SEND_STAT_ERR_INIT,			// 初期化エラー
+	E_IR_SEND_STAT_ERR_EMPTY,			// データなしエラー
 	E_IR_SEND_STAT_MAX
 } E_IR_SEND_STAT;
 
@@ -104,7 +107,7 @@ volatile UCHAR _gui_event_ir_send_end = 0;
 // サブキャリア制御
 //
 
-static VOID ir_send_init_subcarrier( UINT fsc_hz, UINT duty )
+static BOOL ir_send_init_subcarrier( UINT fsc_hz, UINT duty )
 {
 #ifdef CO_TEST_LED_ENABLE
 	TEST_LED1_OFF();
@@ -112,7 +115,9 @@ static VOID ir_send_init_subcarrier( UINT fsc_hz, UINT duty )
 	Timer0_Init( 1 );
 	Timer0_Set_Period( 1000000UL / fsc_hz );
 //	Timer0_Set_Period_Direct( 2, 49 );
-	Timer0_Set_PwmPin( duty );
+	if( Timer0_Set_PwmPin( duty ) == FALSE ) {
+		return FALSE;
+	}
 
 #if 0
 	Usart_Set_Stdout();
@@ -120,6 +125,8 @@ static VOID ir_send_init_subcarrier( UINT fsc_hz, UINT duty )
 	printf_P( PSTR(", TCCR0A=0x%x, TCCR0B=0x%x\n"), TCCR0A, TCCR0B );
 	printf_P( PSTR("bit=0x%x\n"), gTimer0_ClockSelectBits );
 #endif
+
+	return TRUE;
 }
 
 static VOID ir_send_start_subcarrier( VOID )
@@ -733,7 +740,10 @@ static VOID ir_send_ovf_inthdl( VOID )
 static VOID ir_send__start( const UINT fsc_hz, const UINT duty_sc, const UINT t_usec, const E_IR_SEND_STAT init_stat )
 {
 	// サブキャリア発振タイマ初期化
-	ir_send_init_subcarrier( fsc_hz, duty_sc );	// fsc=40kHz duty=33%
+	if( ir_send_init_subcarrier( fsc_hz, duty_sc ) == FALSE ) {
+		gIr_Send_Stat = E_IR_SEND_STAT_ERR_INIT;
+		return;
+	}
 
 	// フレーム制御タイマ初期化
 	Timer1_Init( 1 );
@@ -790,7 +800,7 @@ INT Ir_Send_Start( VOID )
 {
 	if( (gIr_Frame.byte_idx == 0) && (gIr_Frame.bit_mask == 0x80) ) {
 		// empty
-		gIr_Send_Stat = E_IR_SEND_STAT_IDLE;
+		gIr_Send_Stat = E_IR_SEND_STAT_ERR_EMPTY;
 		return -1;
 	}
 
@@ -843,27 +853,29 @@ VOID Ir_Send_Stop( VOID )
 	Timer1_Close();
 }
 
-VOID Ir_Send_WaitEnd( VOID )
+BOOL Ir_Send_WaitEnd( VOID )
 {
-	BOOL send_complete = FALSE;
 	UINT wait_cnt = 0;
 
-	while( send_complete == FALSE ) {
+	while( TRUE ) {
 		switch( gIr_Send_Stat ) {
 			case E_IR_SEND_STAT_SONY_END:
 			case E_IR_SEND_STAT_AEHA_END:
 			case E_IR_SEND_STAT_NEC_END:
 			case E_IR_SEND_STAT_TOSHIBA_END:
-			case E_IR_SEND_STAT_ERR:
 			case E_IR_SEND_STAT_IDLE:
-				send_complete = TRUE;
-				break;
+				return TRUE;
+			case E_IR_SEND_STAT_ERR:
+			case E_IR_SEND_STAT_ERR_INIT:
+			case E_IR_SEND_STAT_ERR_EMPTY:
+				printf_P( PSTR("error. stat=%u\n"), gIr_Send_Stat );
+				return FALSE;
 			default:
 				wait_cnt++;
 				_delay_ms( 100 );
 				if( wait_cnt >= 50 ) {	// 5sec
 					printf_P( PSTR("timeout. stat=%u\n"), gIr_Send_Stat );
-					return;
+					return FALSE;
 				}
 				break;
 		}

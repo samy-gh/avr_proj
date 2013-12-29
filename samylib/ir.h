@@ -114,7 +114,7 @@ extern BOOL Ir_Recv_WaitEnd( VOID );
 
 extern INT Ir_Send_Start( VOID );
 extern VOID Ir_Send_Stop( VOID );
-extern VOID Ir_Send_WaitEnd( VOID );
+extern BOOL Ir_Send_WaitEnd( VOID );
 
 extern BOOL Ir_Write_Eeprom( UINT addr );
 extern BOOL Ir_Read_Eeprom( UINT addr );
