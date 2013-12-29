@@ -89,6 +89,8 @@ typedef enum {
 
 extern E_IR_RECV_STAT volatile gIr_Recv_Stat;
 extern E_IR_RECV_ERR volatile gIr_Recv_Err;
+extern T_IR_FRAME volatile gIr_Frame;
+
 
 #define IR_RECV_PCINT8_HDL() \
 	do { \
