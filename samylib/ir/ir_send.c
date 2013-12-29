@@ -788,6 +788,12 @@ static VOID ir_send__start( const UINT fsc_hz, const UINT duty_sc, const UINT t_
 // タスクAPI
 INT Ir_Send_Start( VOID )
 {
+	if( (gIr_Frame.byte_idx == 0) && (gIr_Frame.bit_mask == 0x80) ) {
+		// empty
+		gIr_Send_Stat = E_IR_SEND_STAT_IDLE;
+		return -1;
+	}
+
 	switch( gIr_Frame.type ) {
 		case E_IR_FRAME_TYPE_SONY:
 			ir_send__start(
