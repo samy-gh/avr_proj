@@ -1,0 +1,15 @@
+【Arduino】
+
+LiquidCrystal lcd( 9, 10, 5, 6, 7, 8 );
+I/Oコネクタ AnalogPin 0～5
+
+
+【ネイティブ】
+
+LiquidCrystal RS=PB1 EN=PB2 D4～D7=PD5, PD6, PD7, PB0
+I/Oコネクタ PC0～PC5
+V-USB INT0, INT1(PD2, PD3), PullUP(PD4)
+LED PB5, PB4, PB3
+
+サブ基盤：スイッチ PC2, PC3
+
