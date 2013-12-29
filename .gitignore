@@ -9,4 +9,6 @@ cscope.files
 *.lnk
 *.swp
 *.swo
+*.exe
+*.a
 ctags_exclude_files.txt
