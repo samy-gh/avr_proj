@@ -77,15 +77,18 @@ typedef enum {
 	E_IR_SEND_STAT_TOSHIBA_GAP,			// フレーム間ギャップ
 	E_IR_SEND_STAT_TOSHIBA_LAST_LEADOUT,	// Leadout部送信中
 	E_IR_SEND_STAT_TOSHIBA_END,			// 送信完了待ち
-	// [48-51] その他
+	// [48-52] その他
 	E_IR_SEND_STAT_ERR,					// エラー発生
+	E_IR_SEND_STAT_ERR2,				// エラー発生
 	E_IR_SEND_STAT_ERR_INIT,			// 初期化エラー
 	E_IR_SEND_STAT_ERR_EMPTY,			// データなしエラー
+	E_IR_SEND_STAT_ERR_UNKNOWN_FRAME_TYPE,	// 不明なフレーム形式エラー
 	E_IR_SEND_STAT_MAX
 } E_IR_SEND_STAT;
 
 
 E_IR_SEND_STAT volatile gIr_Send_Stat = E_IR_SEND_STAT_IDLE;
+UINT volatile gIr_Send_ErrData;
 UCHAR gIr_Send_CurrBit;
 UCHAR gIr_Send_ByteIdx;
 UCHAR gIr_Send_BitMask;
@@ -586,7 +589,16 @@ static VOID ir_send_ovf_inthdl( VOID )
 			case E_IR_SEND_STAT_SONY_GAP:
 				ir_send__event_send_sony_gap();
 				break;
+			case E_IR_SEND_STAT_SONY_END:
+				break;
+			case E_IR_SEND_STAT_ERR:
+			case E_IR_SEND_STAT_ERR2:
+			case E_IR_SEND_STAT_ERR_INIT:
+			case E_IR_SEND_STAT_ERR_EMPTY:
+			case E_IR_SEND_STAT_ERR_UNKNOWN_FRAME_TYPE:
+				break;
 			default:
+				gIr_Send_ErrData = gIr_Send_Stat;
 				gIr_Send_Stat = E_IR_SEND_STAT_ERR;
 				return;
 		}
@@ -626,7 +638,16 @@ static VOID ir_send_ovf_inthdl( VOID )
 			case E_IR_SEND_STAT_NEC_LAST_LEADOUT:
 				ir_send__event_stop_nec_last_leadout();
 				break;
+			case E_IR_SEND_STAT_NEC_END:
+				break;
+			case E_IR_SEND_STAT_ERR:
+			case E_IR_SEND_STAT_ERR2:
+			case E_IR_SEND_STAT_ERR_INIT:
+			case E_IR_SEND_STAT_ERR_EMPTY:
+			case E_IR_SEND_STAT_ERR_UNKNOWN_FRAME_TYPE:
+				break;
 			default:
+				gIr_Send_ErrData = gIr_Send_Stat;
 				gIr_Send_Stat = E_IR_SEND_STAT_ERR;
 				return;
 		}
@@ -666,7 +687,16 @@ static VOID ir_send_ovf_inthdl( VOID )
 			case E_IR_SEND_STAT_AEHA_LAST_LEADOUT:
 				ir_send__event_stop_aeha_last_leadout();
 				break;
+			case E_IR_SEND_STAT_AEHA_END:
+				break;
+			case E_IR_SEND_STAT_ERR:
+			case E_IR_SEND_STAT_ERR2:
+			case E_IR_SEND_STAT_ERR_INIT:
+			case E_IR_SEND_STAT_ERR_EMPTY:
+			case E_IR_SEND_STAT_ERR_UNKNOWN_FRAME_TYPE:
+				break;
 			default:
+				gIr_Send_ErrData = gIr_Send_Stat;
 				gIr_Send_Stat = E_IR_SEND_STAT_ERR;
 				return;
 		}
@@ -706,13 +736,23 @@ static VOID ir_send_ovf_inthdl( VOID )
 			case E_IR_SEND_STAT_TOSHIBA_LAST_LEADOUT:
 				ir_send__event_stop_toshiba_last_leadout();
 				break;
+			case E_IR_SEND_STAT_TOSHIBA_END:
+				break;
+			case E_IR_SEND_STAT_ERR:
+			case E_IR_SEND_STAT_ERR2:
+			case E_IR_SEND_STAT_ERR_INIT:
+			case E_IR_SEND_STAT_ERR_EMPTY:
+			case E_IR_SEND_STAT_ERR_UNKNOWN_FRAME_TYPE:
+				break;
 			default:
+				gIr_Send_ErrData = gIr_Send_Stat;
 				gIr_Send_Stat = E_IR_SEND_STAT_ERR;
 				return;
 		}
 	}
 	else {
-		gIr_Send_Stat = E_IR_SEND_STAT_ERR;
+		gIr_Send_ErrData = gIr_Frame.type;
+		gIr_Send_Stat = E_IR_SEND_STAT_ERR_UNKNOWN_FRAME_TYPE;
 		return;
 		// エラー
 	}
@@ -866,9 +906,11 @@ BOOL Ir_Send_WaitEnd( VOID )
 			case E_IR_SEND_STAT_IDLE:
 				return TRUE;
 			case E_IR_SEND_STAT_ERR:
+			case E_IR_SEND_STAT_ERR2:
 			case E_IR_SEND_STAT_ERR_INIT:
 			case E_IR_SEND_STAT_ERR_EMPTY:
-				printf_P( PSTR("error. stat=%u\n"), gIr_Send_Stat );
+			case E_IR_SEND_STAT_ERR_UNKNOWN_FRAME_TYPE:
+				printf_P( PSTR("error. stat=%u, %u\n"), gIr_Send_Stat, gIr_Send_ErrData );
 				return FALSE;
 			default:
 				wait_cnt++;
