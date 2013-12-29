@@ -32,7 +32,7 @@ int main( int argc, char* argv[] )
 		exit( 1 );
 	}
 	memset( buf, '\xee', sizeof(buf) );
-	buf[0] = 0;
+//	buf[0] = 0;	// ReportID
 	buf[1] = 1;
 	buf[2] = 3;
 	buf[3] = 5;
