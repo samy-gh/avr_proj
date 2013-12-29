@@ -2,6 +2,7 @@
 // プロジェクト固有
 #include "custom.h"
 #include "ir_ctrl.h"
+#include "usb_proto.h"
 
 // usbdrv
 #include <usbdrv/usbdrv.h>
@@ -68,6 +69,8 @@ PROGMEM char usbHidReportDescriptor[] = {
 };
 
 
+static VOID usbCommand_Execute( VOID );
+
 static uchar currentPosition;
 static uchar bytesRemaining; // Receive Data Pointer
 
@@ -76,14 +79,21 @@ static uchar bytesRemaining; // Receive Data Pointer
 //
 typedef struct {
 	UCHAR id[1];
-	UCHAR buf[39];
+	union {
+		UCHAR				byte[38];
+		T_USB_PROTO_WRITE	w_msg;
+		T_USB_PROTO_READ	r_msg;
+	}buf;
 } ReportBuf_t;
 
 static ReportBuf_t g_Report;
 
 //	但し、先頭1バイトはReport IDを置く必要があるので,1バイトずれる.
-#define	usbBody g_Report.buf
+#define	usbWmsg g_Report.buf.w_msg
+#define	usbRmsg g_Report.buf.r_msg
+#define	usbBody g_Report.buf.byte
 #define	buffer  g_Report.id
+#define	repId  g_Report.id[1]
 
 
 void dump_pkt( void )
@@ -161,13 +171,73 @@ uchar usbFunctionWrite( uchar *data, uchar len )
 	// 全部受け取ったら、バッファ内容を実行.
 	if( bytesRemaining == 0 ) {
 		dump_pkt();
+		usbCommand_Execute();
 		return 1;	// return 1 if we have all data
 	}
 	return 0;		// continue data.
 }
 
 
-VOID usart_poll( VOID )
+static VOID usbCommand_Execute( VOID )
+{
+	switch( usbWmsg.command ) {
+		case D_CMD_IR_W_SEND_EEPROM:
+			usbRmsg.command = D_CMD_IR_R_SEND_EEPROM;
+			if( Ir_Ctrl_Start_Send_KeyEventHdl() != FALSE ) {
+				usbRmsg.retcd = D_RETCD_OK;
+				usbRmsg.len = 0;
+			}
+			else {
+				usbRmsg.retcd = D_RETCD_ERR;
+				usbRmsg.len = 0;
+			}
+			break;
+
+		case D_CMD_IR_W_SEND_HOST:
+			usbRmsg.command = D_CMD_IR_R_SEND_HOST;
+			if( Ir_Ctrl_Send_IrCode( (T_USB_PROTO_IR_CODE*)usbWmsg.data ) != FALSE ) {
+				usbRmsg.retcd = D_RETCD_OK;
+				usbRmsg.len = 0;
+			}
+			else {
+				usbRmsg.retcd = D_RETCD_ERR;
+				usbRmsg.len = 0;
+			}
+			break;
+
+		case D_CMD_IR_W_GET_EEPROM:
+			{
+				INT retcd;
+
+				usbRmsg.command = D_CMD_IR_R_GET_EEPROM;
+				// Readデータの準備
+				retcd = Ir_Ctrl_Get_IrCodeEeprom( (T_USB_PROTO_IR_CODE*)usbRmsg.data );
+				if( retcd >= 0 ) {
+					usbRmsg.retcd = D_RETCD_OK;
+					usbRmsg.len = retcd;
+				}
+				else {
+					usbRmsg.retcd = D_RETCD_ERR;
+					usbRmsg.len = 0;
+				}
+			}
+			break;
+
+		case D_CMD_IR_W_SET_EEPROM:
+			usbRmsg.command = D_CMD_IR_R_SET_EEPROM;
+			Ir_Ctrl_Set_Eeprom( (T_USB_PROTO_IR_CODE*)usbWmsg.data );
+
+			usbRmsg.retcd = D_RETCD_OK;
+			usbRmsg.len = 0;
+			break;
+
+		default:
+			break;
+	}
+}
+
+
+static VOID usart_poll( VOID )
 {
 	INT c;
 
