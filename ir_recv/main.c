@@ -1,8 +1,5 @@
 
 // プロジェクト固有
-#include "ir_recv.h"
-#include "ir_frame.h"
-#include "ir_send.h"
 #include "custom.h"
 
 // samylib
@@ -12,6 +9,7 @@
 #include <lcd_hd44780.h>
 #include <test_led.h>
 #include <test_sw.h>
+#include <ir.h>
 
 // WinAVR
 #include <avr/io.h>
@@ -203,7 +201,20 @@ VOID main( VOID )
 			Usart_Init( 38400 );
 			Usart_Set_Stdout();
 			printf_P( PSTR("\nsend begin\n") );
-			Ir_Send();
+#if 0
+			{
+				UCHAR frame[] = { 0xA9, 0x14 };
+				Ir_Frame_Set( E_IR_FRAME_TYPE_SONY, frame, sizeof(frame), 2 );
+			}
+#endif
+#if 1
+			{
+				UCHAR frame[] = { 0x02, 0xFD, 0x48, 0xB7 };
+				Ir_Frame_Set( E_IR_FRAME_TYPE_NEC, frame, sizeof(frame), 1 );
+			}
+#endif
+			Ir_Send_Start();
+			Ir_Send_WaitEnd();
 			Test_Sw_Is_Sw2Chg();
 			printf_P( PSTR("\nsend comoplete\n") );
 

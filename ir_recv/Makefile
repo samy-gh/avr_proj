@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 18-Mar-2011.
+# Last Change: 29-Dec-2013.
 #
 
 ##
@@ -23,8 +23,9 @@ FUSE_EX=0xFF
 ## ソースコード設定
 ##
 TARGET=main-$(OSC).hex
-CSRCS+=main.c ir_recv.c ir_frame.c ir_frame_sony.c ir_frame_nec.c ir_frame_aeha.c
-CSRCS+=ir_send.c
+CSRCS+=main.c
+#CSRCS+=ir_recv.c ir_frame.c ir_frame_sony.c ir_frame_nec.c ir_frame_aeha.c
+#CSRCS+=ir_send.c
 
 
 ##
@@ -36,6 +37,7 @@ include ../samylib/samylib.mak
 # LCD制御wait時間の倍率 (3.3V駆動時は2にする)
 CFLAGS+= -DD_LCD_WAIT_FACTOR=2
 
+CFLAGS+=-DCO_TEST_LED_ENABLE
 
 ##
 ## コンパイラ設定
@@ -100,6 +102,7 @@ cleandepend:
 
 
 %.o: %.c
+	echo Compiling... $<
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 
@@ -125,6 +128,7 @@ clean:
 
 
 %.d: %.c
+	echo Depending... $<
 	@set -e; $(CC) -MM $(CFLAGS) $< \
 	 | sed 's,$(notdir $*)\.o[ :]* \(.*\)\.c,\1.o $@ : \1.c,g' > $@; \
 	 [ -s $@ ] || rm -f $@
