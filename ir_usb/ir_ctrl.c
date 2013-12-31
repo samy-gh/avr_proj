@@ -12,6 +12,7 @@
 
 // WinAVR
 #include <avr/sleep.h>
+#include <util/delay.h>
 
 // STD-C
 #include <stdio.h>
@@ -43,6 +44,10 @@ VOID ir_ctrl_set_test_ir_code( VOID )
 #endif
 
 
+#define IR_RECV_POW_ON()		( sbi( DDRC, DDC1 ), sbi( PORTC, PC1 ), _delay_ms(10) )
+#define IR_RECV_POW_OFF()		( cbi( DDRC, DDC1 ), cbi( PORTC, PC1 ) )
+
+
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // ハンドラ
@@ -59,6 +64,7 @@ VOID Ir_Ctrl_Recv_EventHdl( VOID )
 		case E_IR_RECV_STAT_END:
 			// 受信終了＆eeprom保存
 			Ir_Recv_Stop();
+			IR_RECV_POW_OFF();
 			Ir_Write_Eeprom( D_IR_EEP_ADDR );
 
 			// 受信結果表示
@@ -86,6 +92,7 @@ VOID Ir_Ctrl_Recv_EventHdl( VOID )
 		case E_IR_RECV_STAT_ERR:
 			// エラー終了
 			Ir_Recv_Stop();
+			IR_RECV_POW_OFF();
 
 			// 受信結果表示
 			Usart_Set_Stdout();
@@ -154,6 +161,7 @@ VOID Ir_Ctrl_Start_Recv_KeyEventHdl( VOID )
 			Usart_Init( 38400 );
 			Usart_Set_Stdout();
 			printf_P( PSTR("\nrecv begin\n") );
+			IR_RECV_POW_ON();
 			Ir_Recv_Start();
 			set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
 			break;
