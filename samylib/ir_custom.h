@@ -9,5 +9,7 @@
 // IR受信ピンの状態取得用
 #define D_IR_RECV_PIN	bit_is_set( PINC, PINC0 )
 
+// 送信時負論理
+//#define CO_IR_SEND_NEG_LOGIC
 
 #endif //__IR_CUSTOM_H__

@@ -110,11 +110,16 @@ volatile UCHAR _gui_event_ir_send_end = 0;
 // サブキャリア制御
 //
 
-static BOOL ir_send_init_subcarrier( UINT fsc_hz, UINT duty )
+static BOOL ir_send_init_subcarrier( const UINT fsc_hz, UINT duty )
 {
+#ifdef CO_IR_SEND_NEG_LOGIC
+	duty = 10000 - duty;
+#endif
+
 #ifdef CO_TEST_LED_ENABLE
 	TEST_LED1_OFF();
 #endif
+
 	Timer0_Init( 1 );
 	Timer0_Set_Period( 1000000UL / fsc_hz );
 //	Timer0_Set_Period_Direct( 2, 49 );
