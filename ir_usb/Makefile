@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 29-Dec-2013.
+# Last Change: 31-Dec-2013.
 #
 
 ##
@@ -37,6 +37,8 @@ include ../samylib/samylib.mak
 CFLAGS+= -DD_USART_TX_BUFFER_SIZE=0
 # LCD§ŒäwaitŠÔ‚Ì”{—¦ (3.3V‹ì“®‚Í2‚É‚·‚é)
 CFLAGS+= -DD_LCD_WAIT_FACTOR=2
+# IR‘—M•‰˜_—
+CFLAGS+= -DCO_IR_SEND_NEG_LOGIC
 
 
 ##
