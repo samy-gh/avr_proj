@@ -241,12 +241,17 @@ static VOID sw_poll( VOID )
 			switch( Test_Sw_Is_Sw1Chg() ) {
 				case E_TEST_SW_EVENT_NONE:
 					// 長押し
-					Ir_Ctrl_Start_Recv_KeyEventHdl();	// 受信開始//アボート
+					Ir_Ctrl_Start_Recv_KeyEventHdl();	// 受信開始/アボート
 					break;
 				case E_TEST_SW_EVENT_OFF:
 					puts_P( PSTR("SW1 off") );
 					// 短押し
-					Ir_Ctrl_Start_Send_KeyEventHdl();	// 送信開始
+					if( Ir_Ctrl_Is_RecvMode() == FALSE ) {
+						Ir_Ctrl_Start_Send_KeyEventHdl();	// 送信開始
+					}
+					else {
+						Ir_Ctrl_Abort_Recv_KeyEventHdl();	// 受信アボート
+					}
 					break;
 				default:
 					break;

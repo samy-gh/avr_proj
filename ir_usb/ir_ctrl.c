@@ -51,6 +51,14 @@ VOID ir_ctrl_set_test_ir_code( VOID )
 #define IR_RECV_POW_OFF()		( cbi( DDRC, DDC1 ), cbi( PORTC, PC1 ) )
 
 
+typedef enum {
+	T_IR_CTRL_MODE_IDLE = 0,
+	T_IR_CTRL_MODE_RECV,
+	T_IR_CTRL_MODE_SEND,
+} T_IR_CTRL_MODE;
+
+static T_IR_CTRL_MODE	gIr_Control_Mode = T_IR_CTRL_MODE_IDLE;
+
 
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // ハンドラ
@@ -58,6 +66,10 @@ VOID ir_ctrl_set_test_ir_code( VOID )
 // IR受信監視 ハンドラ(mainloop)から呼ぶ
 VOID Ir_Ctrl_Recv_EventHdl( VOID )
 {
+	if( gIr_Control_Mode != T_IR_CTRL_MODE_RECV ) {
+		return;
+	}
+
 	// IR受信イベント(完了/エラー)
 	switch( gIr_Recv_Stat ) {
 		default:
@@ -76,6 +88,8 @@ VOID Ir_Ctrl_Recv_EventHdl( VOID )
 			gIr_Recv_Stat = E_IR_RECV_STAT_IDLE;
 			Ir_Recv_EventHistoryDump();
 
+			gIr_Control_Mode = T_IR_CTRL_MODE_IDLE;
+
 			TEST_LED1_OFF();
 
 			CLK_DOWN_ENABLE();
@@ -93,6 +107,8 @@ VOID Ir_Ctrl_Recv_EventHdl( VOID )
 			Ir_Frame_Dump();
 			gIr_Recv_Stat = E_IR_RECV_STAT_IDLE;
 			gIr_Recv_Err = E_IR_RECV_ERR_NONE;
+
+			gIr_Control_Mode = T_IR_CTRL_MODE_IDLE;
 
 			TEST_LED1_OFF();
 
@@ -133,35 +149,63 @@ static VOID ir_ctrl_set_frame( T_USB_PROTO_IR_CODE* const buf )
 // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 // タスク
 
+BOOL Ir_Ctrl_Is_RecvMode( VOID )
+{
+	if( gIr_Control_Mode == T_IR_CTRL_MODE_RECV ) {
+		return TRUE;
+	}
+	else {
+		return FALSE;
+	}
+}
+
+
 // IR受信しEEPROMへ保存
-VOID Ir_Ctrl_Start_Recv_KeyEventHdl( VOID )
+BOOL Ir_Ctrl_Start_Recv_KeyEventHdl( VOID )
 {
 	switch( gIr_Recv_Stat ) {
 		default:
-			Ir_Ctrl_Abort_Recv_KeyEventHdl();
-			break;
+			return Ir_Ctrl_Abort_Recv_KeyEventHdl();
 		case E_IR_RECV_STAT_IDLE:
+			if( gIr_Control_Mode != T_IR_CTRL_MODE_IDLE ) {
+				return FALSE;
+			}
+
+			printf_P( PSTR("\nrecv begin\n") );
+
 			CLK_DOWN_DISABLE();
 
 			TEST_LED1_ON();
 
-			printf_P( PSTR("\nrecv begin\n") );
+			gIr_Control_Mode = T_IR_CTRL_MODE_RECV;
+
 			IR_RECV_POW_ON();
 			Ir_Recv_Start();
-			break;
+			return TRUE;
 	}
 }
 
 
 // 受信処理を中断
-VOID Ir_Ctrl_Abort_Recv_KeyEventHdl( VOID )
+BOOL Ir_Ctrl_Abort_Recv_KeyEventHdl( VOID )
 {
+	if( gIr_Control_Mode != T_IR_CTRL_MODE_RECV ) {
+		printf_P( PSTR("\nIR is not recv mode. abort cancel.\n") );
+		return FALSE;
+	}
+
 	printf_P( PSTR("\nrecv abort\n") );
 	Ir_Recv_Stop();
+
+	gIr_Recv_Stat = E_IR_RECV_STAT_IDLE;
+
+	gIr_Control_Mode = T_IR_CTRL_MODE_IDLE;
 
 	TEST_LED1_OFF();
 
 	CLK_DOWN_ENABLE();
+
+	return TRUE;
 }
 
 
@@ -170,10 +214,19 @@ BOOL Ir_Ctrl_Start_Send_KeyEventHdl( VOID )
 {
 	BOOL retcd = FALSE;
 
+	if( gIr_Control_Mode != T_IR_CTRL_MODE_IDLE ) {
+		printf_P( PSTR("\nIR busy. send cancel\n") );
+		return FALSE;
+	}
+
 	// UART初期化
 	printf_P( PSTR("\nsend begin\n") );
 
 	CLK_DOWN_DISABLE();
+
+	TEST_LED1_ON();
+
+	gIr_Control_Mode = T_IR_CTRL_MODE_SEND;
 
 	// eeprom読み出し＆送信
 	while( 1 ) {
@@ -196,6 +249,10 @@ BOOL Ir_Ctrl_Start_Send_KeyEventHdl( VOID )
 		retcd = TRUE;
 		break;
 	}
+
+	gIr_Control_Mode = T_IR_CTRL_MODE_IDLE;
+
+	TEST_LED1_OFF();
 
 	CLK_DOWN_ENABLE();
 
@@ -266,6 +323,11 @@ BOOL Ir_Ctrl_Send_IrCode( T_USB_PROTO_IR_CODE* const buf )
 {
 	BOOL retcd = FALSE;
 
+	if( gIr_Control_Mode != T_IR_CTRL_MODE_IDLE ) {
+		printf_P( PSTR("\nIR busy. send cancel\n") );
+		return FALSE;
+	}
+
 	ir_ctrl_set_frame( buf );
 
 	// UART初期化
@@ -274,6 +336,8 @@ BOOL Ir_Ctrl_Send_IrCode( T_USB_PROTO_IR_CODE* const buf )
 	CLK_DOWN_DISABLE();
 
 	TEST_LED1_ON();
+
+	gIr_Control_Mode = T_IR_CTRL_MODE_SEND;
 
 	// eeprom読み出し＆送信
 	while( 1 ) {
@@ -294,6 +358,8 @@ BOOL Ir_Ctrl_Send_IrCode( T_USB_PROTO_IR_CODE* const buf )
 		retcd = TRUE;
 		break;
 	}
+
+	gIr_Control_Mode = T_IR_CTRL_MODE_IDLE;
 
 	TEST_LED1_OFF();
 
