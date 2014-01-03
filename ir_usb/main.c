@@ -237,13 +237,35 @@ static VOID usbCommand_Execute( VOID )
 }
 
 
-static VOID usart_poll( VOID )
+static VOID sw_poll( VOID )
 {
-	INT c;
-
-	c = Usart_Read();
-	if( c > 0 ) {
-		Usart_Write( c );
+	switch( Test_Sw_Is_Sw1Chg() ) {
+		case E_TEST_SW_EVENT_ON:
+			_delay_ms(300);
+			Usart_Set_Stdout();
+			puts_P( PSTR("SW1 on") );
+			TEST_LED1_ON();
+			switch( Test_Sw_Is_Sw1Chg() ) {
+				case E_TEST_SW_EVENT_NONE:
+					// 長押し
+					Ir_Ctrl_Start_Recv_KeyEventHdl();	// 受信開始
+					break;
+				case E_TEST_SW_EVENT_OFF:
+					puts_P( PSTR("SW1 off") );
+					// 短押し
+					Ir_Ctrl_Start_Send_KeyEventHdl();	// 送信開始
+					break;
+				default:
+					break;
+			}
+			break;
+		case E_TEST_SW_EVENT_OFF:
+			Usart_Set_Stdout();
+			puts_P( PSTR("SW1 off") );
+			TEST_LED1_OFF();
+			break;
+		default:
+			break;
 	}
 }
 
@@ -262,21 +284,12 @@ SIGNAL(PCINT1_vect)
 }
 
 
-static VOID led_flash( VOID )
-{
-	TEST_LED1_OFF();
-	while( 1 ) {
-		_delay_ms( 1000 );
-		TEST_LED1_ON();
-		_delay_ms( 1000 );
-		TEST_LED1_OFF();
-	}
-}
-
 VOID setup( VOID )
 {
 	// WDT停止
 	WDTCSR = 0x00;
+
+	CLK_DIV1();
 
 	// パワーセーブ
 #ifdef CO_SLEEP_ENABLE
@@ -295,12 +308,8 @@ VOID setup( VOID )
 	// USART初期化
 	Usart_Init( 38400 );
 
-	// LCD初期化
-	Lcd_Init();
-
 
 	TEST_SW1_ENABLE();
-	TEST_SW2_ENABLE();
 
 
 	TEST_LED1_OFF();
@@ -324,13 +333,12 @@ VOID print_banner( VOID )
 	// バナー表示
 	//
 	// ローカル標準出力関数のテスト
-	prog_char* hello_str = PSTR("IR-USB");
+	prog_char* hello_str = PSTR("\n\nIR-USB\n");
+	CLK_DIV1();
 	Usart_Set_Stdout();
 	Mystdout_PgmPuts( hello_str );
-	Mystdout_Putc( '\n' );
-	Lcd_Set_Stdout();
-	Mystdout_PgmPuts( hello_str );
-	Lcd_Close( TRUE );
+	UART_FLUSH();
+	CLK_DIVN();
 }
 
 
@@ -344,76 +352,30 @@ VOID main( VOID )
 	setup();
 	print_banner();
 
+	CLK_DIV1();
+//	CLK_DIVN();
+
 	while( 1 ) {	/* main event loop */
 #ifdef CO_SLEEP_ENABLE
 		// すべての割り込みハンドラ内でsleep_disable()を実施している。
 		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
 		// 発生してもsleep()しなくなる。
 		// sleep()するのは、sleep_enable()～sleep()までの間に割り込みが一度も発生しない場合のみとなる。
-		cli();
-		sleep_enable();
-		sei();
+//		cli();
+//		sleep_enable();
+//		sei();
 #endif
 
+		CLK_DIV1();
+		TEST_LED1_ON();
 		usbPoll();	/* 10msec以内(50msec以内？)にコール */
-		usart_poll();
-
-#ifdef CO_MAINLOOP_MONITOR
-		Lcd_Set_Stdout();
-		Lcd_Goto( 0, 1 );
-		Mystdout_PrintDigit( loopcnt );
-		loopcnt++;
-#endif
-
-		switch( Test_Sw_Is_Sw1Chg() ) {
-			case E_TEST_SW_EVENT_ON:
-				_delay_ms(300);
-				Usart_Set_Stdout();
-				puts_P( PSTR("SW1 on") );
-				TEST_LED1_ON();
-				switch( Test_Sw_Is_Sw1Chg() ) {
-					case E_TEST_SW_EVENT_NONE:
-						// 長押し
-						Ir_Ctrl_Start_Recv_KeyEventHdl();	// 受信開始
-						break;
-					case E_TEST_SW_EVENT_OFF:
-						puts_P( PSTR("SW1 off") );
-						// 短押し
-						Ir_Ctrl_Start_Send_KeyEventHdl();	// 送信開始
-						break;
-					default:
-						break;
-				}
-				break;
-			case E_TEST_SW_EVENT_OFF:
-				Usart_Set_Stdout();
-				puts_P( PSTR("SW1 off") );
-				TEST_LED1_OFF();
-				break;
-			default:
-				break;
-		}
-
-		switch( Test_Sw_Is_Sw2Chg() ) {
-			case E_TEST_SW_EVENT_ON:
-				Usart_Set_Stdout();
-				puts_P( PSTR("SW2 on") );
-				TEST_LED3_ON();
-				Ir_Ctrl_Start_Send_KeyEventHdl();	// 送信開始
-				break;
-			case E_TEST_SW_EVENT_OFF:
-				Usart_Set_Stdout();
-				puts_P( PSTR("SW2 off") );
-				TEST_LED3_OFF();
-				break;
-			default:
-				break;
-		}
-
-
-		// IR受信イベント監視
+		TEST_LED1_OFF();
+		sw_poll();
 		Ir_Ctrl_Recv_EventHdl();
 
+
+//		TEST_LED1_TOGGLE();
+		CLK_DIVN();
 
 #ifdef CO_SLEEP_ENABLE
 		sleep_cpu();
