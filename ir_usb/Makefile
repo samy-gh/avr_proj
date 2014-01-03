@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 31-Dec-2013.
+# Last Change: 03-Jan-2014.
 #
 
 ##
@@ -25,6 +25,7 @@ FUSE_EX=0xFF
 TARGET=main-$(OSC).hex
 CSRCS+=main.c
 CSRCS+=ir_ctrl.c
+CSRCS+=clk_ctrl.c
 CSRCS+=usbdrv/usbdrv.c
 ASMSRCS+=usbdrv/usbdrvasm.S
 
@@ -35,10 +36,10 @@ ASMSRCS+=usbdrv/usbdrvasm.S
 include ../samylib/samylib.mak
 # USART送信割り込みはUSB通信を阻害するので無効にする
 CFLAGS+= -DD_USART_TX_BUFFER_SIZE=0
-# LCD制御wait時間の倍率 (3.3V駆動時は2にする)
-CFLAGS+= -DD_LCD_WAIT_FACTOR=2
 # IR送信時負論理
 CFLAGS+= -DCO_IR_SEND_NEG_LOGIC
+# IR送信モニタLED有効
+CFLAGS+= -DCO_IR_SEND_INDICATOR_ENABLE
 
 
 ##

@@ -1,6 +1,7 @@
 
 // プロジェクト固有
 #include "custom.h"
+#include "clk_ctrl.h"
 #include "ir_ctrl.h"
 #include "usb_proto.h"
 
@@ -9,6 +10,8 @@
 #include <common.h>
 #include <usart.h>
 #include <ir.h>
+#include <test_led.h>
+
 
 // WinAVR
 #include <avr/sleep.h>
@@ -68,24 +71,14 @@ VOID Ir_Ctrl_Recv_EventHdl( VOID )
 			Ir_Write_Eeprom( D_IR_EEP_ADDR );
 
 			// 受信結果表示
-			Usart_Set_Stdout();
 			printf_P( PSTR("\nrecv success\n") );
 			Ir_Frame_Dump();
 			gIr_Recv_Stat = E_IR_RECV_STAT_IDLE;
 			Ir_Recv_EventHistoryDump();
-#ifdef CO_LED_CTRL
-			TEST_LED3_OFF();
-#endif
 
+			TEST_LED1_OFF();
 
-			// UART後片付け
-#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
-			Usart_Wait_WriteComplete();
-#endif
-//			set_sleep_mode( SLEEP_MODE_PWR_DOWN );
-//			Usart_Close();
-
-			CLK_DIVN();
+			CLK_DOWN_ENABLE();
 			break;
 
 
@@ -95,24 +88,15 @@ VOID Ir_Ctrl_Recv_EventHdl( VOID )
 			IR_RECV_POW_OFF();
 
 			// 受信結果表示
-			Usart_Set_Stdout();
 			printf_P( PSTR("\nrecv error\n") );
 			Ir_Recv_EventHistoryDump();
 			Ir_Frame_Dump();
 			gIr_Recv_Stat = E_IR_RECV_STAT_IDLE;
 			gIr_Recv_Err = E_IR_RECV_ERR_NONE;
-#ifdef CO_LED_CTRL
-			TEST_LED3_ON();
-#endif
 
-			// UART後片付け
-//			set_sleep_mode( SLEEP_MODE_PWR_DOWN );
-#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
-			Usart_Wait_WriteComplete();
-#endif
-//			Usart_Close();
+			TEST_LED1_OFF();
 
-			CLK_DIVN();
+			CLK_DOWN_ENABLE();
 			break;
 	}
 }
@@ -154,16 +138,16 @@ VOID Ir_Ctrl_Start_Recv_KeyEventHdl( VOID )
 {
 	switch( gIr_Recv_Stat ) {
 		default:
-			Ir_Recv_EventHistoryDump();
+			Ir_Ctrl_Abort_Recv_KeyEventHdl();
 			break;
 		case E_IR_RECV_STAT_IDLE:
-			CLK_DIV1();
-			Usart_Init( 38400 );
-			Usart_Set_Stdout();
+			CLK_DOWN_DISABLE();
+
+			TEST_LED1_ON();
+
 			printf_P( PSTR("\nrecv begin\n") );
 			IR_RECV_POW_ON();
 			Ir_Recv_Start();
-			set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
 			break;
 	}
 }
@@ -172,8 +156,12 @@ VOID Ir_Ctrl_Start_Recv_KeyEventHdl( VOID )
 // 受信処理を中断
 VOID Ir_Ctrl_Abort_Recv_KeyEventHdl( VOID )
 {
-	printf_P( PSTR("\nsend abort\n") );
+	printf_P( PSTR("\nrecv abort\n") );
 	Ir_Recv_Stop();
+
+	TEST_LED1_OFF();
+
+	CLK_DOWN_ENABLE();
 }
 
 
@@ -183,17 +171,13 @@ BOOL Ir_Ctrl_Start_Send_KeyEventHdl( VOID )
 	BOOL retcd = FALSE;
 
 	// UART初期化
-	CLK_DIV1();
-	Usart_Init( 38400 );
-	Usart_Set_Stdout();
 	printf_P( PSTR("\nsend begin\n") );
 
-#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
-	Usart_Wait_WriteComplete();
-#endif
+	CLK_DOWN_DISABLE();
 
 	// eeprom読み出し＆送信
 	while( 1 ) {
+
 		if( Ir_Read_Eeprom( D_IR_EEP_ADDR ) == FALSE ) {
 			break;
 		}
@@ -207,22 +191,15 @@ BOOL Ir_Ctrl_Start_Send_KeyEventHdl( VOID )
 			break;
 		}
 
-
 		printf_P( PSTR("\nsend comoplete\n") );
 
 		retcd = TRUE;
 		break;
 	}
 
-	// UART後片付け
-#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
-	Usart_Wait_WriteComplete();
-#endif
-//	Usart_Close();
+	CLK_DOWN_ENABLE();
 
-	CLK_DIVN();
-
-	return retcd;retcd = TRUE;
+	return retcd;
 }
 
 
@@ -292,14 +269,11 @@ BOOL Ir_Ctrl_Send_IrCode( T_USB_PROTO_IR_CODE* const buf )
 	ir_ctrl_set_frame( buf );
 
 	// UART初期化
-	CLK_DIV1();
-	Usart_Init( 38400 );
-	Usart_Set_Stdout();
 	printf_P( PSTR("\nsend begin\n") );
 
-#if defined(CO_CLOCK_REDUCE_MODE) || defined(CO_SLEEP_ENABLE)
-	Usart_Wait_WriteComplete();
-#endif
+	CLK_DOWN_DISABLE();
+
+	TEST_LED1_ON();
 
 	// eeprom読み出し＆送信
 	while( 1 ) {
@@ -321,6 +295,10 @@ BOOL Ir_Ctrl_Send_IrCode( T_USB_PROTO_IR_CODE* const buf )
 		break;
 	}
 
+	TEST_LED1_OFF();
+
+	CLK_DOWN_ENABLE();
+
 	return retcd;
 }
 
@@ -330,8 +308,12 @@ BOOL Ir_Ctrl_Set_Eeprom( T_USB_PROTO_IR_CODE* const buf )
 {
 	BOOL retcd = FALSE;
 
+	TEST_LED1_ON();
+
 	ir_ctrl_set_frame( buf );
 	Ir_Write_Eeprom( D_IR_EEP_ADDR );
+
+	TEST_LED1_OFF();
 
 	retcd = TRUE;
 

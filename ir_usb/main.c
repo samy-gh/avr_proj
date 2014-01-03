@@ -1,6 +1,7 @@
 
 // プロジェクト固有
 #include "custom.h"
+#include "clk_ctrl.h"
 #include "ir_ctrl.h"
 #include "usb_proto.h"
 
@@ -25,12 +26,6 @@
 // STD-C
 #include <stdio.h>
 
-
-// メインループの動作を見る
-//#define CO_MAINLOOP_MONITOR
-
-// スリープ(省電力)モードON
-#define CO_SLEEP_ENABLE
 
 
 /*
@@ -241,14 +236,12 @@ static VOID sw_poll( VOID )
 {
 	switch( Test_Sw_Is_Sw1Chg() ) {
 		case E_TEST_SW_EVENT_ON:
-			_delay_ms(300);
-			Usart_Set_Stdout();
+			_delay_ms(300);	// Delay for Long-push check.
 			puts_P( PSTR("SW1 on") );
-			TEST_LED1_ON();
 			switch( Test_Sw_Is_Sw1Chg() ) {
 				case E_TEST_SW_EVENT_NONE:
 					// 長押し
-					Ir_Ctrl_Start_Recv_KeyEventHdl();	// 受信開始
+					Ir_Ctrl_Start_Recv_KeyEventHdl();	// 受信開始//アボート
 					break;
 				case E_TEST_SW_EVENT_OFF:
 					puts_P( PSTR("SW1 off") );
@@ -260,9 +253,7 @@ static VOID sw_poll( VOID )
 			}
 			break;
 		case E_TEST_SW_EVENT_OFF:
-			Usart_Set_Stdout();
 			puts_P( PSTR("SW1 off") );
-			TEST_LED1_OFF();
 			break;
 		default:
 			break;
@@ -286,16 +277,16 @@ SIGNAL(PCINT1_vect)
 
 VOID setup( VOID )
 {
+	CLK_DIV1();
+
 	// WDT停止
 	WDTCSR = 0x00;
 
-	CLK_DIV1();
-
 	// パワーセーブ
 #ifdef CO_SLEEP_ENABLE
-	set_sleep_mode( SLEEP_MODE_IDLE );	// USARTはIDLEモードでしか使えない
-//	set_sleep_mode( SLEEP_MODE_STANDBY );
-//	set_sleep_mode( SLEEP_MODE_PWR_DOWN );
+	// USARTはIDLEモードのみ。
+	// V-USBのI/Oポート制御はIDLEモードのみ。
+	set_sleep_mode( SLEEP_MODE_IDLE );
 #endif
 #ifdef power_all_disable
 	power_all_disable();
@@ -307,6 +298,7 @@ VOID setup( VOID )
 
 	// USART初期化
 	Usart_Init( 38400 );
+	Usart_Set_Stdout();
 
 
 	TEST_SW1_ENABLE();
@@ -335,7 +327,6 @@ VOID print_banner( VOID )
 	// ローカル標準出力関数のテスト
 	prog_char* hello_str = PSTR("\n\nIR-USB\n");
 	CLK_DIV1();
-	Usart_Set_Stdout();
 	Mystdout_PgmPuts( hello_str );
 	UART_FLUSH();
 	CLK_DIVN();
@@ -345,15 +336,9 @@ VOID print_banner( VOID )
 VOID main( VOID ) __attribute__((noreturn));
 VOID main( VOID )
 {
-#ifdef CO_MAINLOOP_MONITOR
-	ULONG loopcnt = 0;
-#endif
-
 	setup();
 	print_banner();
 
-	CLK_DIV1();
-//	CLK_DIVN();
 
 	while( 1 ) {	/* main event loop */
 #ifdef CO_SLEEP_ENABLE
@@ -361,25 +346,28 @@ VOID main( VOID )
 		// そうすることで、ループ先頭のsleep_enable()～ループ終端のsleep()までの間に割り込みが
 		// 発生してもsleep()しなくなる。
 		// sleep()するのは、sleep_enable()～sleep()までの間に割り込みが一度も発生しない場合のみとなる。
-//		cli();
-//		sleep_enable();
-//		sei();
+		cli();
+		sleep_enable();
+		sei();
 #endif
 
-		CLK_DIV1();
-		TEST_LED1_ON();
+//		TEST_LED1_ON();
+
+
 		usbPoll();	/* 10msec以内(50msec以内？)にコール */
-		TEST_LED1_OFF();
 		sw_poll();
 		Ir_Ctrl_Recv_EventHdl();
 
 
 //		TEST_LED1_TOGGLE();
-		CLK_DIVN();
+//		TEST_LED1_OFF();
 
+
+		CLK_DOWN_ON();
 #ifdef CO_SLEEP_ENABLE
 		sleep_cpu();
 #endif
+		CLK_DOWN_OFF();
 	}
 }
 
