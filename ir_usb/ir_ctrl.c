@@ -168,6 +168,15 @@ VOID Ir_Ctrl_Start_Recv_KeyEventHdl( VOID )
 	}
 }
 
+
+// 受信処理を中断
+VOID Ir_Ctrl_Abort_Recv_KeyEventHdl( VOID )
+{
+	printf_P( PSTR("\nsend abort\n") );
+	Ir_Recv_Stop();
+}
+
+
 // EEPROM内容をIR送信
 BOOL Ir_Ctrl_Start_Send_KeyEventHdl( VOID )
 {

@@ -10,6 +10,7 @@
 
 
 extern VOID Ir_Ctrl_Start_Recv_KeyEventHdl( VOID );
+extern VOID Ir_Ctrl_Abort_Recv_KeyEventHdl( VOID );
 extern BOOL Ir_Ctrl_Start_Send_KeyEventHdl( VOID );
 extern VOID Ir_Ctrl_Recv_EventHdl( VOID );
 extern BOOL Ir_Ctrl_Send_IrCode( T_USB_PROTO_IR_CODE* const buf );
