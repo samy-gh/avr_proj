@@ -19,8 +19,12 @@
 #include <stdio.h>
 
 
+#ifdef CO_IR_SEND_INDICATOR_ENABLE
 #ifndef CO_TEST_LED_ENABLE
 #define CO_TEST_LED_ENABLE
+#endif
+#else
+#undef CO_TEST_LED_ENABLE
 #endif
 
 typedef enum {
