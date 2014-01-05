@@ -1,5 +1,5 @@
 
-#include <strings.h>
+#include <string.h>
 
 #include "ir_frame.h"
 #include "usb_proto.h"
