@@ -3,7 +3,7 @@
 #define __CUSTOM_H__
 
 // スリープ(省電力)モードON
-#define CO_SLEEP_ENABLE
+//#define CO_SLEEP_ENABLE
 
 // クロック間引き(省電力)モードON
 //#define CO_CLOCK_REDUCE_MODE
