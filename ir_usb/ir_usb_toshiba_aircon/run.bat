@@ -5,9 +5,11 @@
 @rem ir_aircon <dehumi>
 @rem ir_aircon <stop>
 
-ir_aircon.exe heater 17.5 norm auto
+@rem ir_aircon.exe heater 17.5 norm auto
+ir_aircon.exe heater 17.5 norm mid
 @rem ir_aircon.exe heater 30.0 saving slow
 @rem ir_aircon.exe cooler 17.0 norm auto
 @rem ir_aircon.exe dehumi 55 norm
+@rem ir_aircon.exe stop
 
 pause
