@@ -42,7 +42,11 @@ if has( 'win32' )
 		\ | make
 		\ | let &makeprg = s:makeprg_bak
 else
-	let &makeprg = 'make -j2 -s -w -C ' . s:s_curdir
+	if executable( 'gmake' )
+		let &makeprg = 'gmake -j2 -s -w -C ' . s:s_curdir
+	else
+		let &makeprg = 'make -j2 -s -w -C ' . s:s_curdir
+	endif
 endif
 
 
