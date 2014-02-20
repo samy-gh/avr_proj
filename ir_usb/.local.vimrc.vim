@@ -2,7 +2,7 @@
 "
 " vim初期化ファイルサンプル
 "
-" Last Change: 19-Feb-2014.
+" Last Change: 20-Feb-2014.
 " foldの操作方法を知らない場合はとりあえず "zR" とタイプ
 "
 
@@ -41,6 +41,9 @@ if has( 'win32' )
 		\ | let &makeprg = s:s_curdir . 'w.bat'
 		\ | make
 		\ | let &makeprg = s:makeprg_bak
+		\ | if has( 'gui' )
+		\ | 	echo 'finish'
+		\ | endif
 else
 	if executable( 'gmake' )
 		let &makeprg = 'gmake -j2 -s -w -C ' . s:s_curdir

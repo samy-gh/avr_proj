@@ -2,7 +2,7 @@
 "
 " vim初期化ファイルサンプル
 "
-" Last Change: 19-Feb-2014.
+" Last Change: 20-Feb-2014.
 " foldの操作方法を知らない場合はとりあえず "zR" とタイプ
 "
 
@@ -30,7 +30,7 @@ endif
 if has( 'win32' )
 	" MinGW/cygwin (gcc)用efm設定
 	let s:as_efm = []
-	let s:as_efm = add( s:as_efm, "%Dmake:\ Entering\ directory\ '%f',%Dmake:\ Leaving\ directory\ '%f'" )
+	let s:as_efm = add( s:as_efm, "%Dmake: Entering directory '%f',%Dmake: Leaving directory '%f'" )
 
 	" エラーメッセージ(複数行、日本語)
 	let s:as_efm = add( s:as_efm, '%W%f:%l:%c: 警告: %m' )

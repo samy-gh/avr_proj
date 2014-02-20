@@ -12,3 +12,4 @@ cscope.files
 *.exe
 *.a
 ctags_exclude_files.txt
+log.txt

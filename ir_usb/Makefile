@@ -1,7 +1,7 @@
 #
 # template of Makefile for GNU make
 #
-# Last Change: 03-Jan-2014.
+# Last Change: 20-Feb-2014.
 #
 
 ##
@@ -124,7 +124,7 @@ cleandepend:
 
 .PHONY: clean
 clean:
-	rm -rf $(OBJS) *.stackdump *.exe *.elf *.hex *.eep $(TARGET)
+	rm -rf $(OBJS) *.stackdump *.exe *.elf *.hex *.eep $(TARGET) log.txt
 
 
 %.d: %.c
