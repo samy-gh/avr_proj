@@ -2,7 +2,7 @@
 "
 " vim初期化ファイルサンプル
 "
-" Last Change: 20-Feb-2014.
+" Last Change: 2014/04/02 19:59.
 " foldの操作方法を知らない場合はとりあえず "zR" とタイプ
 "
 
@@ -28,29 +28,7 @@ if &filetype == 'c'
 endif
 
 if has( 'win32' )
-	" MinGW/cygwin (gcc)用efm設定
-	let s:as_efm = []
-	let s:as_efm = add( s:as_efm, "%Dmake: Entering directory '%f',%Dmake: Leaving directory '%f'" )
-
-	" エラーメッセージ(複数行、日本語)
-	let s:as_efm = add( s:as_efm, '%W%f:%l:%c: 警告: %m' )
-	let s:as_efm = add( s:as_efm, '%E%f:%l:%c: エラ%.: %m' )	" エラーの「ー」は'['を含む
-	let s:as_efm = add( s:as_efm, '%I%f:%l:%c: 備考: %m' )
-
-	" エラーメッセージ(複数行、英語)
-	let s:as_efm = add( s:as_efm, '%W%f:%l:%c: warning: %m' )
-	let s:as_efm = add( s:as_efm, '%E%f:%l:%c: error: %m' )
-	let s:as_efm = add( s:as_efm, '%I%f:%l:%c: note: %m' )
-
-	" MinGW/cygwin共通
-	let s:as_efm = add( s:as_efm, '%A%f:%l:%c:%m' )	" warning, error, note以外
-	let s:as_efm = add( s:as_efm, '%m %f:%l:%c:' )
-	let s:as_efm = add( s:as_efm, '%f:%l: %m' )		" 桁番号が無いエラー用
-
-	" 複数行の2行目以降
-	let s:as_efm = add( s:as_efm, '%-Z [ 	]%#^' )
-	let s:as_efm = add( s:as_efm, '%-C %.%#' )
-
-	let &efm = join( s:as_efm, ',' )
+	" errorformat設定
+	call errorformat#set_gcc()
 endif
 

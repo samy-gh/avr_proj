@@ -2,7 +2,7 @@
 "
 " vim初期化ファイルサンプル
 "
-" Last Change: 20-Feb-2014.
+" Last Change: 2014/04/02 20:00.
 " foldの操作方法を知らない場合はとりあえず "zR" とタイプ
 "
 
@@ -25,31 +25,33 @@ if &filetype == 'c'
 	" ctags -R --tag-relative=yes --C-kinds=+p .
 endif
 
-if has( 'win32' )
-	" 指定パスでmakeを実施する様に設定(cygwin_vim_makeprg.batにお任せ)
-	let &makeprg = s:s_curdir . 'bat_make.bat ' . s:s_curdir
+if !exists( 'g:did_local_vimrc' )
+	let g:did_local_vimrc = 1
+	if has( 'win32' )
+		" 指定パスでmakeを実施する様に設定(cygwin_vim_makeprg.batにお任せ)
+		let &makeprg = s:s_curdir . 'bat_make.bat ' . s:s_curdir
 
-	" s:make_dirにあるget_log.shコマンドを実行して結果をQuickFixへ表示
-	" 「Run」コマンドの引数を省略した場合は最後の値を使用。
-	command! -nargs=* Run
-		\   if '<args>' != ''
-		\ | 	let s:makeprg_args = '<args>'
-		\ | elseif !exists( 's:makeprg_args' )
-		\ | 	let s:makeprg_args = ''
-		\ | endif
-		\ | let s:makeprg_bak = &makeprg
-		\ | let &makeprg = s:s_curdir . 'w.bat'
-		\ | make
-		\ | let &makeprg = s:makeprg_bak
-		\ | if has( 'gui' )
-		\ | 	echo 'finish'
-		\ | endif
-else
-	if executable( 'gmake' )
-		let &makeprg = 'gmake -j2 -s -w -C ' . s:s_curdir
+		" s:make_dirにあるget_log.shコマンドを実行して結果をQuickFixへ表示
+		" 「Run」コマンドの引数を省略した場合は最後の値を使用。
+		command! -nargs=* Run
+			\   if '<args>' != ''
+			\ | 	let s:makeprg_args = '<args>'
+			\ | elseif !exists( 's:makeprg_args' )
+			\ | 	let s:makeprg_args = ''
+			\ | endif
+			\ | let s:makeprg_bak = &makeprg
+			\ | let &makeprg = s:s_curdir . 'w.bat'
+			\ | make
+			\ | let &makeprg = s:makeprg_bak
+			\ | if has( 'gui' )
+			\ | 	echo 'finish'
+			\ | endif
 	else
-		let &makeprg = 'make -j2 -s -w -C ' . s:s_curdir
+		if executable( 'gmake' )
+			let &makeprg = 'gmake -j2 -s -w -C ' . s:s_curdir
+		else
+			let &makeprg = 'make -j2 -s -w -C ' . s:s_curdir
+		endif
 	endif
 endif
-
 
