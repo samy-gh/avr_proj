@@ -2,7 +2,7 @@
 "
 " vim初期化ファイルサンプル
 "
-" Last Change: 2014/04/02 19:59.
+" Last Change: 2014/04/02 20:20.
 " foldの操作方法を知らない場合はとりあえず "zR" とタイプ
 "
 
@@ -16,9 +16,10 @@ else
 endif
 "echo s:s_curdir
 
-if &filetype == 'c'
+if (&filetype == 'c') || (&filetype == 'h')
 	call AddTagsL( s:s_curdir . 'tags' )
 	call AddPathL( s:s_curdir . 'samylib' )
+	call AddPathL( 'C:\Program Files\WinAVR-20100110\avr\include' )
 
 	call AddTagsGlobalToLocal()
 	call AddPathGlobalToLocal()
