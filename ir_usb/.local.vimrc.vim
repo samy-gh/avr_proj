@@ -2,7 +2,7 @@
 "
 " vim初期化ファイルサンプル
 "
-" Last Change: 2014/04/02 20:00.
+" Last Change: 2014/04/05 15:54.
 " foldの操作方法を知らない場合はとりあえず "zR" とタイプ
 "
 
@@ -25,8 +25,8 @@ if &filetype == 'c'
 	" ctags -R --tag-relative=yes --C-kinds=+p .
 endif
 
-if !exists( 'g:did_local_vimrc' )
-	let g:did_local_vimrc = 1
+if !exists( 'g:did_local_vimrc_make' )
+	let g:did_local_vimrc_make = 1
 	if has( 'win32' )
 		" 指定パスでmakeを実施する様に設定(cygwin_vim_makeprg.batにお任せ)
 		let &makeprg = s:s_curdir . 'bat_make.bat ' . s:s_curdir
