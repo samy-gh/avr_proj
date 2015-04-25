@@ -280,12 +280,47 @@ SIGNAL(PCINT1_vect)
 }
 
 
+VOID stop_wdt( VOID )
+{
+	UCHAR wdtcsr;
+
+	wdtcsr = WDTCSR;
+
+	WDTCSR |= _BV(WDCE);
+	WDTCSR = wdtcsr & ~(_BV(WDCE) | _BV(WDE));
+}
+
+
+VOID reboot_with_wdt( VOID )
+{
+	cli();	// Disable interrupt
+
+	// WDT enable.
+	WDTCSR |= _BV(WDE) | _BV(WDCE);
+	while( 1 ) {
+		; // waiting WDT reset.
+	}
+}
+
+
 VOID setup( VOID )
 {
+	UCHAR	mcusr;
+
 	CLK_DIV1();
 
-	// WDT停止
-	WDTCSR = 0x00;
+	mcusr = MCUSR;
+	MCUSR = 0;
+
+	stop_wdt();
+
+
+	if( (mcusr & (_BV(PORF) | _BV(BORF))) != 0 ) {
+		// パワーオンリセット、電圧低下リセット時はWDTによるリブートを行う。
+		// WDTリセットまでのタイムアウト時間16msecを利用して、
+		// 電源投入16msec後にリセット解除するのが目的。
+		reboot_with_wdt();
+	}
 
 	// パワーセーブ
 #ifdef CO_SLEEP_ENABLE
